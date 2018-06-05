@@ -1,0 +1,30 @@
+{
+  "name": "commerce-carousel",
+  "version": "0.0.1",
+  "description": "An opinionated carousel for react apps",
+  "main": "bin/index.js",
+  "scripts": {
+    "compile": "babel src/ --out-dir=./bin",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/practo/commerce-carousel.git"
+  },
+  "keywords": [
+    "Carousel"
+  ],
+  "author": "aditykakarot",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/practo/commerce-carousel/issues"
+  },
+  "homepage": "https://github.com/practo/commerce-carousel#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1"
+  }
+}
