@@ -8,7 +8,17 @@ module.exports = {
     path: __dirname + "/dist"
   },
   module: {
-    rules: [{ test: /\.js$/, use: "babel-loader" }]
+    rules: [
+      { test: /\.js$/, use: "babel-loader" },
+      {
+        test: /\.scss$/,
+        use: [
+          "style-loader", // creates style nodes from JS strings
+          "css-loader", // translates CSS into CommonJS
+          "sass-loader" // compiles Sass to CSS
+        ]
+      }
+    ]
   },
   plugins: [
     new HtmlWebpackPlugin({

@@ -12,8 +12,11 @@ This is intended to be built for only organizational needs and to be used in pro
 
 ## Features
 
-- Supports dynamic update of total number of slides.
 - Supports horizontal scroll when js is not loaded. (Works in AMP)
-- Reacts to touch and swipe events across all devices.
+- Swipe movements in mobile devices supported.
+- Mouse movements and wheel movements are not supported because desktop will have only navigation buttons to navigate.
 - Supports callback for slide change.
-- A lot of ideas and implementation is derived from [slick](http://kenwheeler.github.io/slick/) and[react-slick](https://github.com/akiran/react-slick)
+- A lot of ideas and implementation is derived from a combination of the following libraries:
+  - [slick](http://kenwheeler.github.io/slick/)
+  - [react-slick](https://github.com/akiran/react-slick)
+  - [react-swipable](https://github.com/dogfessional/react-swipeable)
