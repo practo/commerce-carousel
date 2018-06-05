@@ -5,3 +5,5 @@ class Carousel extends React.Component {
     return <div>Hello World</div>;
   }
 }
+
+export default Carousel;

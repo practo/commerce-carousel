@@ -5,7 +5,7 @@
   "main": "bin/index.js",
   "scripts": {
     "compile": "babel src/ --out-dir=./bin",
-    "examples": "webpack-dev-server --config ./examples/config/webpack.config.js",
+    "examples": "npm run compile && webpack-dev-server --config ./examples/config/webpack.config.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,7 +15,7 @@
   "keywords": [
     "Carousel"
   ],
-  "author": "aditykakarot",
+  "author": "adityakakarot",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/practo/commerce-carousel/issues"

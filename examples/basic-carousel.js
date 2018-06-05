@@ -1,5 +1,12 @@
 import React from "react";
 
-const BasicCarousel = () => <div> Running Basic Carousel </div>;
+import Carousel from "../bin/index";
+
+const BasicCarousel = () => (
+  <div>
+    Running Basic Carousel
+    <Carousel />
+  </div>
+);
 
 export default BasicCarousel;
