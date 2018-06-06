@@ -111,7 +111,7 @@ var Carousel = function (_React$Component) {
       this.container.style.overflowX = "hidden";
       setTimeout(function () {
         _this3.container.style.overflowX = "scroll";
-      }, 20);
+      }, 50);
 
       var scrollTime = +new Date() - this.state.startTime;
       console.log("scrollTime " + scrollTime);
