@@ -44,6 +44,7 @@ var Carousel = function (_React$Component) {
     _this.onTouchEnd = _this.onTouchEnd.bind(_this);
     _this.onTouchMove = _this.onTouchMove.bind(_this);
     _this.onTouchStart = _this.onTouchStart.bind(_this);
+    _this.onTouchCancel = _this.onTouchCancel.bind(_this);
     _this.calculateNextSlide = _this.calculateNextSlide.bind(_this);
     return _this;
   }
@@ -97,6 +98,12 @@ var Carousel = function (_React$Component) {
       this.calculateNextSlide();
     }
   }, {
+    key: "onTouchCancel",
+    value: function onTouchCancel() {
+      console.log("cancel" + this.container.scrollLeft);
+      this.calculateNextSlide();
+    }
+  }, {
     key: "calculateNextSlide",
     value: function calculateNextSlide() {
       var _this3 = this;
@@ -147,6 +154,7 @@ var Carousel = function (_React$Component) {
             onTouchEnd: _this4.onTouchEnd,
             onTouchStart: _this4.onTouchStart,
             onTouchMove: _this4.onTouchMove,
+            onTouchCancel: _this4.onTouchCancel,
             style: {
               display: "inline-block",
               marginRight: index + 1 === children.length ? 0 : _this4.state.margin
