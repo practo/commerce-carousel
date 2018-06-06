@@ -45,6 +45,7 @@ var Carousel = function (_React$Component) {
     _this.onTouchMove = _this.onTouchMove.bind(_this);
     _this.onTouchStart = _this.onTouchStart.bind(_this);
     _this.onTouchCancel = _this.onTouchCancel.bind(_this);
+    _this.onScroll = _this.onScroll.bind(_this);
     _this.calculateNextSlide = _this.calculateNextSlide.bind(_this);
     return _this;
   }
@@ -138,6 +139,11 @@ var Carousel = function (_React$Component) {
       });
     }
   }, {
+    key: "onScroll",
+    value: function onScroll(e) {
+      e.preventDefault();
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this4 = this;
@@ -155,6 +161,7 @@ var Carousel = function (_React$Component) {
             onTouchStart: _this4.onTouchStart,
             onTouchMove: _this4.onTouchMove,
             onTouchCancel: _this4.onTouchCancel,
+            onScroll: _this4.onScroll,
             style: {
               display: "inline-block",
               marginRight: index + 1 === children.length ? 0 : _this4.state.margin

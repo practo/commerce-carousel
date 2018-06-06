@@ -19,6 +19,7 @@ class Carousel extends React.Component {
     this.onTouchMove = this.onTouchMove.bind(this);
     this.onTouchStart = this.onTouchStart.bind(this);
     this.onTouchCancel = this.onTouchCancel.bind(this);
+    this.onScroll = this.onScroll.bind(this);
     this.calculateNextSlide = this.calculateNextSlide.bind(this);
   }
 
@@ -116,6 +117,10 @@ class Carousel extends React.Component {
     });
   }
 
+  onScroll(e) {
+    e.preventDefault();
+  }
+
   render() {
     let children = this.props.children;
 
@@ -130,6 +135,7 @@ class Carousel extends React.Component {
         onTouchStart={this.onTouchStart}
         onTouchMove={this.onTouchMove}
         onTouchCancel={this.onTouchCancel}
+        onScroll={this.onScroll}
         style={{
           display: "inline-block",
           marginRight: index + 1 === children.length ? 0 : this.state.margin
