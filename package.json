@@ -5,7 +5,7 @@
   "main": "bin/index.js",
   "scripts": {
     "compile": "babel src/ --out-dir=./bin --no-comments",
-    "examples": "npm run compile && webpack-dev-server --config ./examples/config/webpack.config.js",
+    "examples": "npm run compile && webpack-dev-server --config ./examples/config/webpack.config.js --port 3000",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
