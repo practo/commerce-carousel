@@ -78,7 +78,7 @@ class Carousel extends React.Component {
     this.container.style.overflowX = "hidden";
     setTimeout(() => {
       this.container.style.overflowX = "scroll";
-    }, 50);
+    }, 200);
 
     const scrollTime = +new Date() - this.state.startTime;
     console.log("scrollTime " + scrollTime);
