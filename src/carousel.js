@@ -103,7 +103,7 @@ class Carousel extends React.Component {
           : closestIndex;
     }
     console.log(closestIndex);
-    scrollTo(this.container, this.state.activeSlidesScroll[closestIndex], 300);
+    scrollTo(this.container, this.state.activeSlidesScroll[closestIndex], 120);
 
     this.setState({
       currentSlide: closestIndex

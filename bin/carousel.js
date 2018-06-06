@@ -124,7 +124,7 @@ var Carousel = function (_React$Component) {
         closestIndex = scrollLeft < this.state.activeSlidesScroll[this.state.currentSlide] ? Math.max(0, this.state.currentSlide - 1) : closestIndex;
       }
       console.log(closestIndex);
-      (0, _utils.scrollTo)(this.container, this.state.activeSlidesScroll[closestIndex], 300);
+      (0, _utils.scrollTo)(this.container, this.state.activeSlidesScroll[closestIndex], 120);
 
       this.setState({
         currentSlide: closestIndex
