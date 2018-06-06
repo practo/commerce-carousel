@@ -3,11 +3,9 @@ import React from "react";
 import Carousel from "../bin/index";
 import ExampleSlide from "./config/example-slide";
 
-import "./styles.scss";
-
 const BasicCarousel = () => (
   <div className="basic-carousel">
-    <div>Running Basic Carousel without js</div>
+    <div>Running a Basic Carousel</div>
     <Carousel>
       {Array(5)
         .fill(1)

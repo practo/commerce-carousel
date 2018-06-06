@@ -1,5 +1,12 @@
 .basic-carousel {
+  border: 3px solid #aaa;
+  padding: 5px;
+  @media (min-width: 1024px) {
+    width: 450px;
+    margin: 0 auto;
+  }
 }
+
 .example-slide {
   width: 200px;
   height: 100px;
@@ -7,7 +14,6 @@
   color: #fff;
   font-size: 20px;
   text-align: center;
-  margin: 3px;
   div {
     padding: 35px 0;
   }

@@ -12,9 +12,12 @@ This is intended to be built for only organizational needs and to be used in pro
 
 ## Features
 
+- Supports elements of a fixed width only.
+- Dynamic update on window resize or number of items updated.
 - Supports horizontal scroll when js is not loaded. (Works in AMP)
 - Swipe movements in mobile devices supported.
 - Mouse movements and wheel movements are not supported because desktop will have only navigation buttons to navigate.
+- Support to send the count of slides to move on next/prev button click.
 - Supports callback for slide change.
 - A lot of ideas and implementation is derived from a combination of the following libraries:
   - [slick](http://kenwheeler.github.io/slick/)
