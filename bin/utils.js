@@ -7,7 +7,7 @@ function scrollTo(element, to, duration) {
   var start = element.scrollLeft,
       change = to - start,
       currentTime = 0,
-      increment = 20;
+      increment = 5;
 
   var animateScroll = function animateScroll() {
     currentTime += increment;

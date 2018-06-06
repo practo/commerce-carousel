@@ -36,12 +36,15 @@ var Carousel = function (_React$Component) {
       margin: props.margin || 5,
       leftSpace: props.leftSpace || 5,
       currentSlide: 0,
-      activeSlidesScroll: []
+      activeSlidesScroll: [],
+      startTime: 0
     };
     _this.slides = [];
     _this.setup = _this.setup.bind(_this);
     _this.onTouchEnd = _this.onTouchEnd.bind(_this);
-    _this.calculateCurrentSlide = _this.calculateCurrentSlide.bind(_this);
+    _this.onTouchMove = _this.onTouchMove.bind(_this);
+    _this.onTouchStart = _this.onTouchStart.bind(_this);
+    _this.calculateNextSlide = _this.calculateNextSlide.bind(_this);
     return _this;
   }
 
@@ -59,6 +62,8 @@ var Carousel = function (_React$Component) {
       var containerLength = this.slides.length * (slideWidth + this.state.margin) - this.state.margin;
       var containerWidth = this.container.getBoundingClientRect().width;
 
+      this.container.style.overflowX = "hidden";
+
       var activeSlidesScroll = this.slides.map(function (slide, index) {
         if (index === 0) return 0;
 
@@ -73,13 +78,27 @@ var Carousel = function (_React$Component) {
       });
     }
   }, {
-    key: "onTouchEnd",
-    value: function onTouchEnd() {
-      this.calculateCurrentSlide();
+    key: "onTouchMove",
+    value: function onTouchMove() {
+      console.log("move " + this.container.scrollLeft);
     }
   }, {
-    key: "calculateCurrentSlide",
-    value: function calculateCurrentSlide() {
+    key: "onTouchStart",
+    value: function onTouchStart() {
+      this.setState({
+        startTime: +new Date()
+      });
+      console.log("start" + this.container.scrollLeft);
+    }
+  }, {
+    key: "onTouchEnd",
+    value: function onTouchEnd() {
+      console.log("end" + this.container.scrollLeft);
+      this.calculateNextSlide();
+    }
+  }, {
+    key: "calculateNextSlide",
+    value: function calculateNextSlide() {
       var _this3 = this;
 
       this.container.style.overflowX = "hidden";
@@ -87,15 +106,28 @@ var Carousel = function (_React$Component) {
         _this3.container.style.overflowX = "scroll";
       }, 20);
 
+      var scrollTime = +new Date() - this.state.startTime;
+      console.log("scrollTime " + scrollTime);
       var scrollLeft = this.container.scrollLeft;
-      var closest = this.state.activeSlidesScroll.reduce(function (prev, curr) {
+      console.log("scrollLeft " + scrollLeft);
+      var closestValue = this.state.activeSlidesScroll.reduce(function (prev, curr) {
         return Math.abs(curr - scrollLeft) < Math.abs(prev - scrollLeft) ? curr : prev;
-      });
+      }, -1000000);
 
-      (0, _utils.scrollTo)(this.container, closest, 300);
+      var closestIndex = this.state.activeSlidesScroll.indexOf(closestValue);
+
+      if (scrollTime < 400) {
+        console.log("hello");
+        console.log(this.state.activeSlidesScroll[this.state.currentSlide]);
+        closestIndex = scrollLeft > this.state.activeSlidesScroll[this.state.currentSlide] ? Math.min(this.props.children.length - 1, this.state.currentSlide + 1) : closestIndex;
+
+        closestIndex = scrollLeft < this.state.activeSlidesScroll[this.state.currentSlide] ? Math.max(0, this.state.currentSlide - 1) : closestIndex;
+      }
+      console.log(closestIndex);
+      (0, _utils.scrollTo)(this.container, this.state.activeSlidesScroll[closestIndex], 300);
 
       this.setState({
-        currentSlide: this.state.activeSlidesScroll.indexOf(closest)
+        currentSlide: closestIndex
       });
     }
   }, {
@@ -113,6 +145,8 @@ var Carousel = function (_React$Component) {
               return _this4.slides[index] = div;
             },
             onTouchEnd: _this4.onTouchEnd,
+            onTouchStart: _this4.onTouchStart,
+            onTouchMove: _this4.onTouchMove,
             style: {
               display: "inline-block",
               marginRight: index + 1 === children.length ? 0 : _this4.state.margin
@@ -128,7 +162,6 @@ var Carousel = function (_React$Component) {
           ref: function ref(div) {
             return _this4.container = div;
           },
-          onScroll: this.onScroll,
           style: {
             overflowX: "scroll",
             whiteSpace: "nowrap"

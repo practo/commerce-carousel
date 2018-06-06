@@ -10,12 +10,15 @@ class Carousel extends React.Component {
       margin: props.margin || 5,
       leftSpace: props.leftSpace || 5,
       currentSlide: 0,
-      activeSlidesScroll: []
+      activeSlidesScroll: [],
+      startTime: 0
     };
     this.slides = [];
     this.setup = this.setup.bind(this);
     this.onTouchEnd = this.onTouchEnd.bind(this);
-    this.calculateCurrentSlide = this.calculateCurrentSlide.bind(this);
+    this.onTouchMove = this.onTouchMove.bind(this);
+    this.onTouchStart = this.onTouchStart.bind(this);
+    this.calculateNextSlide = this.calculateNextSlide.bind(this);
   }
 
   componentDidMount() {
@@ -27,6 +30,8 @@ class Carousel extends React.Component {
     const containerLength =
       this.slides.length * (slideWidth + this.state.margin) - this.state.margin;
     const containerWidth = this.container.getBoundingClientRect().width;
+
+    this.container.style.overflowX = "hidden";
 
     const activeSlidesScroll = this.slides.map((slide, index) => {
       if (index === 0) return 0;
@@ -47,27 +52,61 @@ class Carousel extends React.Component {
     });
   }
 
-  onTouchEnd() {
-    this.calculateCurrentSlide();
+  onTouchMove() {
+    console.log("move " + this.container.scrollLeft);
   }
 
-  calculateCurrentSlide() {
+  onTouchStart() {
+    this.setState({
+      startTime: +new Date()
+    });
+    console.log("start" + this.container.scrollLeft);
+  }
+
+  onTouchEnd() {
+    console.log("end" + this.container.scrollLeft);
+    this.calculateNextSlide();
+  }
+
+  calculateNextSlide() {
     this.container.style.overflowX = "hidden";
     setTimeout(() => {
       this.container.style.overflowX = "scroll";
     }, 20);
 
+    const scrollTime = +new Date() - this.state.startTime;
+    console.log("scrollTime " + scrollTime);
     const scrollLeft = this.container.scrollLeft;
-    const closest = this.state.activeSlidesScroll.reduce((prev, curr) => {
+    console.log("scrollLeft " + scrollLeft);
+    let closestValue = this.state.activeSlidesScroll.reduce((prev, curr) => {
       return Math.abs(curr - scrollLeft) < Math.abs(prev - scrollLeft)
         ? curr
         : prev;
-    });
+    }, -1000000);
 
-    scrollTo(this.container, closest, 500);
+    let closestIndex = this.state.activeSlidesScroll.indexOf(closestValue);
+
+    if (scrollTime < 400) {
+      console.log("hello");
+      console.log(this.state.activeSlidesScroll[this.state.currentSlide]);
+      closestIndex =
+        scrollLeft > this.state.activeSlidesScroll[this.state.currentSlide]
+          ? Math.min(
+              this.props.children.length - 1,
+              this.state.currentSlide + 1
+            )
+          : closestIndex;
+
+      closestIndex =
+        scrollLeft < this.state.activeSlidesScroll[this.state.currentSlide]
+          ? Math.max(0, this.state.currentSlide - 1)
+          : closestIndex;
+    }
+    console.log(closestIndex);
+    scrollTo(this.container, this.state.activeSlidesScroll[closestIndex], 300);
 
     this.setState({
-      currentSlide: this.state.activeSlidesScroll.indexOf(closest)
+      currentSlide: closestIndex
     });
   }
 
@@ -82,6 +121,8 @@ class Carousel extends React.Component {
       <div
         ref={div => (this.slides[index] = div)}
         onTouchEnd={this.onTouchEnd}
+        onTouchStart={this.onTouchStart}
+        onTouchMove={this.onTouchMove}
         style={{
           display: "inline-block",
           marginRight: index + 1 === children.length ? 0 : this.state.margin
@@ -94,7 +135,6 @@ class Carousel extends React.Component {
     return (
       <div
         ref={div => (this.container = div)}
-        onScroll={this.onScroll}
         style={{
           overflowX: "scroll",
           whiteSpace: "nowrap"
