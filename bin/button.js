@@ -38,7 +38,7 @@ var NavigationButton = function (_React$PureComponent) {
         "button",
         {
           style: {
-            display: this.props.isActive ? "block" : "none"
+            visibility: this.props.isActive ? "visible" : "hidden"
           },
           className: this.className,
           onClick: this.props.onClick
