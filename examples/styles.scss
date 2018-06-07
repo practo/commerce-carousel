@@ -1,8 +1,22 @@
 .basic-carousel {
   border: 3px solid #aaa;
   padding: 5px;
+  .commerce-carousel {
+    .commerce-carousel-button {
+      position: absolute;
+      z-index: 1;
+      top: 50%;
+      &.prev-button {
+        left: 0;
+      }
+
+      &.next-button {
+        right: 0;
+      }
+    }
+  }
   @media (min-width: 1024px) {
-    width: 450px;
+    width: 800px;
     margin: 0 auto;
   }
 }

@@ -209,7 +209,7 @@ var Carousel = function (_React$Component) {
 
       return _react2.default.createElement(
         "div",
-        { style: { position: "relative" } },
+        { className: "commerce-carousel", style: { position: "relative" } },
         !this.props.disableButtons ? _react2.default.createElement(_button.PrevButton, {
           onClick: this.onPrevClick,
           isActive: this.state.isPrevActive

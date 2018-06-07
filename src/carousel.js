@@ -188,7 +188,7 @@ class Carousel extends React.Component {
     ));
 
     return (
-      <div style={{ position: "relative" }}>
+      <div className="commerce-carousel" style={{ position: "relative" }}>
         {!this.props.disableButtons ? (
           <PrevButton
             onClick={this.onPrevClick}

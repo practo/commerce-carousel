@@ -5,8 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.NextButton = exports.PrevButton = undefined;
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = require("react");
@@ -29,11 +27,7 @@ var NavigationButton = function (_React$PureComponent) {
 
     var _this = _possibleConstructorReturn(this, (NavigationButton.__proto__ || Object.getPrototypeOf(NavigationButton)).call(this, props));
 
-    _this.className = "commerce-carousel-button";
-    _this.style = {
-      position: "absolute",
-      zIndex: 1
-    };
+    _this.className = "commerce-carousel-button ";
     return _this;
   }
 
@@ -43,9 +37,9 @@ var NavigationButton = function (_React$PureComponent) {
       return _react2.default.createElement(
         "button",
         {
-          style: _extends({}, this.style, {
+          style: {
             display: this.props.isActive ? "block" : "none"
-          }),
+          },
           className: this.className,
           onClick: this.props.onClick
         },
@@ -66,9 +60,6 @@ var PrevButton = function (_NavigationButton) {
     var _this2 = _possibleConstructorReturn(this, (PrevButton.__proto__ || Object.getPrototypeOf(PrevButton)).call(this, props));
 
     _this2.className += "prev-button";
-    _this2.style = _extends({}, _this2.style, {
-      left: 0
-    });
     return _this2;
   }
 
@@ -84,9 +75,6 @@ var NextButton = function (_NavigationButton2) {
     var _this3 = _possibleConstructorReturn(this, (NextButton.__proto__ || Object.getPrototypeOf(NextButton)).call(this, props));
 
     _this3.className += "next-button";
-    _this3.style = _extends({}, _this3.style, {
-      right: 0
-    });
     return _this3;
   }
 
