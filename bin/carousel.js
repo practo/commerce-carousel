@@ -39,7 +39,9 @@ var Carousel = function (_React$Component) {
       leftSpace: props.leftSpace || 5,
       currentSlide: 0,
       activeSlidesScroll: [],
-      startTime: 0
+      startTime: 0,
+      isPrevActive: false,
+      isNextActive: false
     };
     _this.slides = [];
     _this.setup = _this.setup.bind(_this);
@@ -50,6 +52,8 @@ var Carousel = function (_React$Component) {
     _this.onNextClick = _this.onNextClick.bind(_this);
     _this.onPrevClick = _this.onPrevClick.bind(_this);
     _this.calculateNextSlide = _this.calculateNextSlide.bind(_this);
+    _this.updateCurrentSlide = _this.updateCurrentSlide.bind(_this);
+    _this.checkActiveButtons = _this.checkActiveButtons.bind(_this);
     return _this;
   }
 
@@ -78,8 +82,9 @@ var Carousel = function (_React$Component) {
       });
 
       this.setState({
-        containerLength: containerLength,
         activeSlidesScroll: activeSlidesScroll
+      }, function () {
+        return _this2.updateCurrentSlide(0);
       });
     }
   }, {
@@ -112,19 +117,35 @@ var Carousel = function (_React$Component) {
     value: function onPrevClick() {
       var nextSlide = Math.max(0, this.state.currentSlide - 1);
 
-      (0, _utils.scrollTo)(this.container, this.state.activeSlidesScroll[nextSlide], 120);
-      this.setState({
-        currentSlide: nextSlide
-      });
+      (0, _utils.scrollTo)(this.container, this.state.activeSlidesScroll[nextSlide], 150);
+      this.updateCurrentSlide(nextSlide);
     }
   }, {
     key: "onNextClick",
     value: function onNextClick() {
       var nextSlide = Math.min(this.props.children.length - 1, this.state.currentSlide + 1);
 
-      (0, _utils.scrollTo)(this.container, this.state.activeSlidesScroll[nextSlide], 120);
+      (0, _utils.scrollTo)(this.container, this.state.activeSlidesScroll[nextSlide], 150);
+      this.updateCurrentSlide(nextSlide);
+    }
+  }, {
+    key: "updateCurrentSlide",
+    value: function updateCurrentSlide(currentSlide) {
       this.setState({
-        currentSlide: nextSlide
+        currentSlide: currentSlide
+      });
+      this.checkActiveButtons(currentSlide);
+    }
+  }, {
+    key: "checkActiveButtons",
+    value: function checkActiveButtons(currentSlide) {
+      var containerWidth = this.container.getBoundingClientRect().width;
+      var slideWidth = this.slides[0].getBoundingClientRect().width;
+      var containerLength = this.slides.length * (slideWidth + this.state.margin) - this.state.margin;
+
+      this.setState({
+        isPrevActive: currentSlide !== 0,
+        isNextActive: this.state.activeSlidesScroll[currentSlide] + containerWidth !== containerLength
       });
     }
   }, {
@@ -155,11 +176,9 @@ var Carousel = function (_React$Component) {
         closestIndex = scrollLeft < this.state.activeSlidesScroll[this.state.currentSlide] ? Math.max(0, this.state.currentSlide - 1) : closestIndex;
       }
       console.log(closestIndex);
-      (0, _utils.scrollTo)(this.container, this.state.activeSlidesScroll[closestIndex], 120);
+      (0, _utils.scrollTo)(this.container, this.state.activeSlidesScroll[closestIndex], 150);
 
-      this.setState({
-        currentSlide: closestIndex
-      });
+      this.updateCurrentSlide(closestIndex);
     }
   }, {
     key: "render",
@@ -190,8 +209,11 @@ var Carousel = function (_React$Component) {
 
       return _react2.default.createElement(
         "div",
-        null,
-        !this.props.disableButtons ? _react2.default.createElement(_button.PrevButton, { onClick: this.onPrevClick }) : null,
+        { style: { position: "relative" } },
+        !this.props.disableButtons ? _react2.default.createElement(_button.PrevButton, {
+          onClick: this.onPrevClick,
+          isActive: this.state.isPrevActive
+        }) : null,
         _react2.default.createElement(
           "div",
           {
@@ -206,7 +228,10 @@ var Carousel = function (_React$Component) {
           },
           children
         ),
-        !this.props.disableButtons ? _react2.default.createElement(_button.NextButton, { onClick: this.onNextClick }) : null
+        !this.props.disableButtons ? _react2.default.createElement(_button.NextButton, {
+          onClick: this.onNextClick,
+          isActive: this.state.isNextActive
+        }) : null
       );
     }
   }]);

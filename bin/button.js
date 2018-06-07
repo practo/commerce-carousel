@@ -30,7 +30,10 @@ var NavigationButton = function (_React$PureComponent) {
     var _this = _possibleConstructorReturn(this, (NavigationButton.__proto__ || Object.getPrototypeOf(NavigationButton)).call(this, props));
 
     _this.className = "commerce-carousel-button";
-    _this.style = { position: "absolute", zIndex: 1 };
+    _this.style = {
+      position: "absolute",
+      zIndex: 1
+    };
     return _this;
   }
 
@@ -40,7 +43,9 @@ var NavigationButton = function (_React$PureComponent) {
       return _react2.default.createElement(
         "button",
         {
-          style: this.style,
+          style: _extends({}, this.style, {
+            display: this.props.isActive ? "block" : "none"
+          }),
           className: this.className,
           onClick: this.props.onClick
         },

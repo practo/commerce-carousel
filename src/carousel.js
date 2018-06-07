@@ -12,7 +12,9 @@ class Carousel extends React.Component {
       leftSpace: props.leftSpace || 5,
       currentSlide: 0,
       activeSlidesScroll: [],
-      startTime: 0
+      startTime: 0,
+      isPrevActive: false,
+      isNextActive: false
     };
     this.slides = [];
     this.setup = this.setup.bind(this);
@@ -23,6 +25,8 @@ class Carousel extends React.Component {
     this.onNextClick = this.onNextClick.bind(this);
     this.onPrevClick = this.onPrevClick.bind(this);
     this.calculateNextSlide = this.calculateNextSlide.bind(this);
+    this.updateCurrentSlide = this.updateCurrentSlide.bind(this);
+    this.checkActiveButtons = this.checkActiveButtons.bind(this);
   }
 
   componentDidMount() {
@@ -50,10 +54,12 @@ class Carousel extends React.Component {
       return scrollValue;
     });
 
-    this.setState({
-      containerLength,
-      activeSlidesScroll
-    });
+    this.setState(
+      {
+        activeSlidesScroll
+      },
+      () => this.updateCurrentSlide(0)
+    );
   }
 
   onTouchMove() {
@@ -80,10 +86,8 @@ class Carousel extends React.Component {
   onPrevClick() {
     const nextSlide = Math.max(0, this.state.currentSlide - 1);
 
-    scrollTo(this.container, this.state.activeSlidesScroll[nextSlide], 120);
-    this.setState({
-      currentSlide: nextSlide
-    });
+    scrollTo(this.container, this.state.activeSlidesScroll[nextSlide], 150);
+    this.updateCurrentSlide(nextSlide);
   }
 
   onNextClick() {
@@ -92,9 +96,28 @@ class Carousel extends React.Component {
       this.state.currentSlide + 1
     );
 
-    scrollTo(this.container, this.state.activeSlidesScroll[nextSlide], 120);
+    scrollTo(this.container, this.state.activeSlidesScroll[nextSlide], 150);
+    this.updateCurrentSlide(nextSlide);
+  }
+
+  updateCurrentSlide(currentSlide) {
     this.setState({
-      currentSlide: nextSlide
+      currentSlide
+    });
+    this.checkActiveButtons(currentSlide);
+  }
+
+  checkActiveButtons(currentSlide) {
+    const containerWidth = this.container.getBoundingClientRect().width;
+    const slideWidth = this.slides[0].getBoundingClientRect().width;
+    const containerLength =
+      this.slides.length * (slideWidth + this.state.margin) - this.state.margin;
+
+    this.setState({
+      isPrevActive: currentSlide !== 0,
+      isNextActive:
+        this.state.activeSlidesScroll[currentSlide] + containerWidth !==
+        containerLength
     });
   }
 
@@ -136,11 +159,9 @@ class Carousel extends React.Component {
           : closestIndex;
     }
     console.log(closestIndex);
-    scrollTo(this.container, this.state.activeSlidesScroll[closestIndex], 120);
+    scrollTo(this.container, this.state.activeSlidesScroll[closestIndex], 150);
 
-    this.setState({
-      currentSlide: closestIndex
-    });
+    this.updateCurrentSlide(closestIndex);
   }
 
   render() {
@@ -167,9 +188,12 @@ class Carousel extends React.Component {
     ));
 
     return (
-      <div>
+      <div style={{ position: "relative" }}>
         {!this.props.disableButtons ? (
-          <PrevButton onClick={this.onPrevClick} />
+          <PrevButton
+            onClick={this.onPrevClick}
+            isActive={this.state.isPrevActive}
+          />
         ) : null}
         <div
           ref={div => (this.container = div)}
@@ -183,7 +207,10 @@ class Carousel extends React.Component {
         </div>
 
         {!this.props.disableButtons ? (
-          <NextButton onClick={this.onNextClick} />
+          <NextButton
+            onClick={this.onNextClick}
+            isActive={this.state.isNextActive}
+          />
         ) : null}
       </div>
     );
