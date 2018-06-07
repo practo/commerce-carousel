@@ -1,4 +1,4 @@
-function scrollTo(element, to, duration) {
+const scrollTo = (element, to, duration) => {
   var start = element.scrollLeft,
     change = to - start,
     currentTime = 0,
@@ -13,7 +13,7 @@ function scrollTo(element, to, duration) {
     }
   };
   animateScroll();
-}
+};
 
 //t = current time
 //b = start value
@@ -26,4 +26,37 @@ Math.easeInOutQuad = function(t, b, c, d) {
   return (-c / 2) * (t * (t - 2) - 1) + b;
 };
 
-export { scrollTo };
+const getClosestSlide = (allSlidesScroll, currentScroll) => {
+  let closestValue = allSlidesScroll.reduce((prev, curr) => {
+    return Math.abs(curr - currentScroll) < Math.abs(prev - currentScroll)
+      ? curr
+      : prev;
+  }, -1000000);
+
+  return allSlidesScroll.indexOf(closestValue);
+};
+
+const getNextFromTouchSpeed = (
+  scrollTime,
+  currentScroll,
+  allSlidesScroll,
+  currentSlide
+) => {
+  let closestIndex = currentSlide;
+
+  if (scrollTime < 400 && currentScroll !== allSlidesScroll[currentSlide]) {
+    closestIndex =
+      currentScroll > allSlidesScroll[currentSlide]
+        ? Math.min(allSlidesScroll.length - 1, currentSlide + 1)
+        : closestIndex;
+
+    closestIndex =
+      currentScroll < allSlidesScroll[currentSlide]
+        ? Math.max(0, currentSlide - 1)
+        : closestIndex;
+  }
+
+  return closestIndex;
+};
+
+export { scrollTo, getClosestSlide, getNextFromTouchSpeed };
