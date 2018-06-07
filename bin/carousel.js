@@ -14,6 +14,8 @@ var _slider = require("./slider");
 
 var _slider2 = _interopRequireDefault(_slider);
 
+var _button = require("./button");
+
 var _utils = require("./utils");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -45,7 +47,8 @@ var Carousel = function (_React$Component) {
     _this.onTouchMove = _this.onTouchMove.bind(_this);
     _this.onTouchStart = _this.onTouchStart.bind(_this);
     _this.onTouchCancel = _this.onTouchCancel.bind(_this);
-    _this.onScroll = _this.onScroll.bind(_this);
+    _this.onNextClick = _this.onNextClick.bind(_this);
+    _this.onPrevClick = _this.onPrevClick.bind(_this);
     _this.calculateNextSlide = _this.calculateNextSlide.bind(_this);
     return _this;
   }
@@ -105,6 +108,26 @@ var Carousel = function (_React$Component) {
       this.calculateNextSlide();
     }
   }, {
+    key: "onPrevClick",
+    value: function onPrevClick() {
+      var nextSlide = Math.max(0, this.state.currentSlide - 1);
+
+      (0, _utils.scrollTo)(this.container, this.state.activeSlidesScroll[nextSlide], 120);
+      this.setState({
+        currentSlide: nextSlide
+      });
+    }
+  }, {
+    key: "onNextClick",
+    value: function onNextClick() {
+      var nextSlide = Math.min(this.props.children.length - 1, this.state.currentSlide + 1);
+
+      (0, _utils.scrollTo)(this.container, this.state.activeSlidesScroll[nextSlide], 120);
+      this.setState({
+        currentSlide: nextSlide
+      });
+    }
+  }, {
     key: "calculateNextSlide",
     value: function calculateNextSlide() {
       var _this3 = this;
@@ -139,11 +162,6 @@ var Carousel = function (_React$Component) {
       });
     }
   }, {
-    key: "onScroll",
-    value: function onScroll(e) {
-      e.preventDefault();
-    }
-  }, {
     key: "render",
     value: function render() {
       var _this4 = this;
@@ -161,7 +179,6 @@ var Carousel = function (_React$Component) {
             onTouchStart: _this4.onTouchStart,
             onTouchMove: _this4.onTouchMove,
             onTouchCancel: _this4.onTouchCancel,
-            onScroll: _this4.onScroll,
             style: {
               display: "inline-block",
               marginRight: index + 1 === children.length ? 0 : _this4.state.margin
@@ -173,16 +190,23 @@ var Carousel = function (_React$Component) {
 
       return _react2.default.createElement(
         "div",
-        {
-          ref: function ref(div) {
-            return _this4.container = div;
+        null,
+        !this.props.disableButtons ? _react2.default.createElement(_button.PrevButton, { onClick: this.onPrevClick }) : null,
+        _react2.default.createElement(
+          "div",
+          {
+            ref: function ref(div) {
+              return _this4.container = div;
+            },
+            style: {
+              position: "relative",
+              overflowX: "scroll",
+              whiteSpace: "nowrap"
+            }
           },
-          style: {
-            overflowX: "scroll",
-            whiteSpace: "nowrap"
-          }
-        },
-        children
+          children
+        ),
+        !this.props.disableButtons ? _react2.default.createElement(_button.NextButton, { onClick: this.onNextClick }) : null
       );
     }
   }]);

@@ -1,6 +1,7 @@
 import React from "react";
 
 import Slider from "./slider";
+import { PrevButton, NextButton } from "./button";
 import { scrollTo } from "./utils";
 
 class Carousel extends React.Component {
@@ -19,7 +20,8 @@ class Carousel extends React.Component {
     this.onTouchMove = this.onTouchMove.bind(this);
     this.onTouchStart = this.onTouchStart.bind(this);
     this.onTouchCancel = this.onTouchCancel.bind(this);
-    this.onScroll = this.onScroll.bind(this);
+    this.onNextClick = this.onNextClick.bind(this);
+    this.onPrevClick = this.onPrevClick.bind(this);
     this.calculateNextSlide = this.calculateNextSlide.bind(this);
   }
 
@@ -75,6 +77,27 @@ class Carousel extends React.Component {
     this.calculateNextSlide();
   }
 
+  onPrevClick() {
+    const nextSlide = Math.max(0, this.state.currentSlide - 1);
+
+    scrollTo(this.container, this.state.activeSlidesScroll[nextSlide], 120);
+    this.setState({
+      currentSlide: nextSlide
+    });
+  }
+
+  onNextClick() {
+    const nextSlide = Math.min(
+      this.props.children.length - 1,
+      this.state.currentSlide + 1
+    );
+
+    scrollTo(this.container, this.state.activeSlidesScroll[nextSlide], 120);
+    this.setState({
+      currentSlide: nextSlide
+    });
+  }
+
   calculateNextSlide() {
     this.container.style.overflowX = "hidden";
     setTimeout(() => {
@@ -120,10 +143,6 @@ class Carousel extends React.Component {
     });
   }
 
-  onScroll(e) {
-    e.preventDefault();
-  }
-
   render() {
     let children = this.props.children;
 
@@ -138,7 +157,6 @@ class Carousel extends React.Component {
         onTouchStart={this.onTouchStart}
         onTouchMove={this.onTouchMove}
         onTouchCancel={this.onTouchCancel}
-        onScroll={this.onScroll}
         style={{
           display: "inline-block",
           marginRight: index + 1 === children.length ? 0 : this.state.margin
@@ -149,14 +167,24 @@ class Carousel extends React.Component {
     ));
 
     return (
-      <div
-        ref={div => (this.container = div)}
-        style={{
-          overflowX: "scroll",
-          whiteSpace: "nowrap"
-        }}
-      >
-        {children}
+      <div>
+        {!this.props.disableButtons ? (
+          <PrevButton onClick={this.onPrevClick} />
+        ) : null}
+        <div
+          ref={div => (this.container = div)}
+          style={{
+            position: "relative",
+            overflowX: "scroll",
+            whiteSpace: "nowrap"
+          }}
+        >
+          {children}
+        </div>
+
+        {!this.props.disableButtons ? (
+          <NextButton onClick={this.onNextClick} />
+        ) : null}
       </div>
     );
   }
