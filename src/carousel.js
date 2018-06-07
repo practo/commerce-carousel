@@ -163,6 +163,8 @@ class Carousel extends React.Component {
         onTouchCancel={this.onTouchCancel}
         style={{
           display: "inline-block",
+          overflowX: "normal",
+          whiteSpace: "normal",
           marginRight: index + 1 === children.length ? 0 : this.state.margin
         }}
       >

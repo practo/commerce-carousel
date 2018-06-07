@@ -180,6 +180,8 @@ var Carousel = function (_React$Component) {
             onTouchCancel: _this4.onTouchCancel,
             style: {
               display: "inline-block",
+              overflowX: "normal",
+              whiteSpace: "normal",
               marginRight: index + 1 === children.length ? 0 : _this4.state.margin
             }
           },
