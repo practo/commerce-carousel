@@ -13,6 +13,7 @@ class Carousel extends React.Component {
       currentSlide: 0,
       allSlidesScroll: [],
       startTime: 0,
+      isTouchActive: false,
       isPrevActive: false,
       isNextActive: false
     };
@@ -23,6 +24,7 @@ class Carousel extends React.Component {
     this.onTouchCancel = this.onTouchCancel.bind(this);
     this.onNextClick = this.onNextClick.bind(this);
     this.onPrevClick = this.onPrevClick.bind(this);
+    this.onScroll = this.onScroll.bind(this);
     this.calculateNextSlide = this.calculateNextSlide.bind(this);
     this.updateCurrentSlide = this.updateCurrentSlide.bind(this);
     this.checkActiveButtons = this.checkActiveButtons.bind(this);
@@ -63,17 +65,35 @@ class Carousel extends React.Component {
   }
 
   onTouchStart() {
+    console.log("touch start");
     this.setState({
-      startTime: +new Date()
+      startTime: +new Date(),
+      isTouchActive: true
     });
   }
 
   onTouchEnd() {
+    console.log("touch end");
+    this.setState({
+      isTouchActive: false
+    });
     this.calculateNextSlide();
   }
 
   onTouchCancel() {
+    console.log("touch cancel");
+    this.setState({
+      isTouchActive: false
+    });
     this.calculateNextSlide();
+  }
+
+  onScroll(e) {
+    console.log("ss");
+    e.preventDefault();
+    this.container.style.overflowX = this.state.isTouchActive
+      ? "scroll"
+      : "hidden";
   }
 
   onPrevClick() {
@@ -140,7 +160,7 @@ class Carousel extends React.Component {
       +new Date() - this.state.startTime,
       currentScroll,
       this.state.allSlidesScroll,
-      closestIndex
+      this.state.currentSlide
     );
 
     scrollTo(this.container, this.state.allSlidesScroll[closestIndex], 150);
@@ -180,6 +200,7 @@ class Carousel extends React.Component {
         />
         <div
           ref={div => (this.container = div)}
+          onScroll={this.onScroll}
           style={{
             position: "relative",
             overflowX: "scroll",

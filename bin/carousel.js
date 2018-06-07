@@ -40,6 +40,7 @@ var Carousel = function (_React$Component) {
       currentSlide: 0,
       allSlidesScroll: [],
       startTime: 0,
+      isTouchActive: false,
       isPrevActive: false,
       isNextActive: false
     };
@@ -50,6 +51,7 @@ var Carousel = function (_React$Component) {
     _this.onTouchCancel = _this.onTouchCancel.bind(_this);
     _this.onNextClick = _this.onNextClick.bind(_this);
     _this.onPrevClick = _this.onPrevClick.bind(_this);
+    _this.onScroll = _this.onScroll.bind(_this);
     _this.calculateNextSlide = _this.calculateNextSlide.bind(_this);
     _this.updateCurrentSlide = _this.updateCurrentSlide.bind(_this);
     _this.checkActiveButtons = _this.checkActiveButtons.bind(_this);
@@ -89,19 +91,36 @@ var Carousel = function (_React$Component) {
   }, {
     key: "onTouchStart",
     value: function onTouchStart() {
+      console.log("touch start");
       this.setState({
-        startTime: +new Date()
+        startTime: +new Date(),
+        isTouchActive: true
       });
     }
   }, {
     key: "onTouchEnd",
     value: function onTouchEnd() {
+      console.log("touch end");
+      this.setState({
+        isTouchActive: false
+      });
       this.calculateNextSlide();
     }
   }, {
     key: "onTouchCancel",
     value: function onTouchCancel() {
+      console.log("touch cancel");
+      this.setState({
+        isTouchActive: false
+      });
       this.calculateNextSlide();
+    }
+  }, {
+    key: "onScroll",
+    value: function onScroll(e) {
+      console.log("ss");
+      e.preventDefault();
+      this.container.style.overflowX = this.state.isTouchActive ? "scroll" : "hidden";
     }
   }, {
     key: "onPrevClick",
@@ -155,7 +174,7 @@ var Carousel = function (_React$Component) {
 
       var closestIndex = (0, _utils.getClosestSlide)(this.state.allSlidesScroll, currentScroll);
 
-      closestIndex = (0, _utils.getNextFromTouchSpeed)(+new Date() - this.state.startTime, currentScroll, this.state.allSlidesScroll, closestIndex);
+      closestIndex = (0, _utils.getNextFromTouchSpeed)(+new Date() - this.state.startTime, currentScroll, this.state.allSlidesScroll, this.state.currentSlide);
 
       (0, _utils.scrollTo)(this.container, this.state.allSlidesScroll[closestIndex], 150);
 
@@ -202,6 +221,7 @@ var Carousel = function (_React$Component) {
             ref: function ref(div) {
               return _this4.container = div;
             },
+            onScroll: this.onScroll,
             style: {
               position: "relative",
               overflowX: "scroll",
