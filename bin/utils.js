@@ -11,6 +11,7 @@ var scrollTo = function scrollTo(element, to, duration) {
 
   var animateScroll = function animateScroll() {
     console.log("animate");
+    element.style.overflowX = "scroll";
     currentTime += increment;
     var val = Math.easeInOutQuad(currentTime, start, change, duration);
     element.scrollLeft = val;
