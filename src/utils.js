@@ -5,6 +5,7 @@ const scrollTo = (element, to, duration) => {
     increment = 5;
 
   var animateScroll = function() {
+    console.log("animate");
     currentTime += increment;
     var val = Math.easeInOutQuad(currentTime, start, change, duration);
     element.scrollLeft = val;

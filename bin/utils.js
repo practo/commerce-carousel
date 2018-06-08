@@ -10,6 +10,7 @@ var scrollTo = function scrollTo(element, to, duration) {
       increment = 5;
 
   var animateScroll = function animateScroll() {
+    console.log("animate");
     currentTime += increment;
     var val = Math.easeInOutQuad(currentTime, start, change, duration);
     element.scrollLeft = val;
