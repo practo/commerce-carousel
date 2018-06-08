@@ -224,6 +224,7 @@ var Carousel = function (_React$Component) {
               return _this4.container = div;
             },
             onScroll: this.onScroll,
+            className: "carousel-wrapper",
             style: {
               position: "relative",
               overflowX: "scroll",
