@@ -155,13 +155,16 @@ class Carousel extends React.Component {
       currentScroll
     );
 
+    console.log("ges " + closestIndex);
+
     /* Get which slide to go to, based on the touch speed */
-    closestIndex = getNextFromTouchSpeed(
-      +new Date() - this.state.startTime,
-      currentScroll,
-      this.state.allSlidesScroll,
-      this.state.currentSlide
-    );
+    closestIndex =
+      getNextFromTouchSpeed(
+        +new Date() - this.state.startTime,
+        currentScroll,
+        this.state.allSlidesScroll,
+        this.state.currentSlide
+      ) || closestIndex;
 
     scrollTo(this.container, this.state.allSlidesScroll[closestIndex], 150);
 
@@ -201,6 +204,7 @@ class Carousel extends React.Component {
         <div
           ref={div => (this.container = div)}
           onScroll={this.onScroll}
+          className="carousel-wrapper"
           style={{
             position: "relative",
             overflowX: "scroll",

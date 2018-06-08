@@ -27,11 +27,16 @@ Math.easeInOutQuad = function(t, b, c, d) {
 };
 
 const getClosestSlide = (allSlidesScroll, currentScroll) => {
+  console.log("here");
   let closestValue = allSlidesScroll.reduce((prev, curr) => {
     return Math.abs(curr - currentScroll) < Math.abs(prev - currentScroll)
       ? curr
       : prev;
   }, -1000000);
+
+  console.log(allSlidesScroll);
+  console.log(currentScroll);
+  console.log(closestValue);
 
   return allSlidesScroll.indexOf(closestValue);
 };
@@ -46,14 +51,9 @@ const getNextFromTouchSpeed = (
 
   if (scrollTime < 400 && currentScroll !== allSlidesScroll[currentSlide]) {
     closestIndex =
-      currentScroll > allSlidesScroll[currentSlide]
+      currentScroll >= allSlidesScroll[currentSlide]
         ? Math.min(allSlidesScroll.length - 1, currentSlide + 1)
-        : closestIndex;
-
-    closestIndex =
-      currentScroll < allSlidesScroll[currentSlide]
-        ? Math.max(0, currentSlide - 1)
-        : closestIndex;
+        : Math.max(0, currentSlide - 1);
   }
 
   return closestIndex;

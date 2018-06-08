@@ -28,20 +28,23 @@ Math.easeInOutQuad = function (t, b, c, d) {
 };
 
 var getClosestSlide = function getClosestSlide(allSlidesScroll, currentScroll) {
+  console.log("here");
   var closestValue = allSlidesScroll.reduce(function (prev, curr) {
     return Math.abs(curr - currentScroll) < Math.abs(prev - currentScroll) ? curr : prev;
   }, -1000000);
+
+  console.log(allSlidesScroll);
+  console.log(currentScroll);
+  console.log(closestValue);
 
   return allSlidesScroll.indexOf(closestValue);
 };
 
 var getNextFromTouchSpeed = function getNextFromTouchSpeed(scrollTime, currentScroll, allSlidesScroll, currentSlide) {
-  var closestIndex = currentSlide;
+  var closestIndex = undefined;
 
   if (scrollTime < 400 && currentScroll !== allSlidesScroll[currentSlide]) {
-    closestIndex = currentScroll > allSlidesScroll[currentSlide] ? Math.min(allSlidesScroll.length - 1, currentSlide + 1) : closestIndex;
-
-    closestIndex = currentScroll < allSlidesScroll[currentSlide] ? Math.max(0, currentSlide - 1) : closestIndex;
+    closestIndex = currentScroll >= allSlidesScroll[currentSlide] ? Math.min(allSlidesScroll.length - 1, currentSlide + 1) : Math.max(0, currentSlide - 1);
   }
 
   return closestIndex;

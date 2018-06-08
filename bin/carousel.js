@@ -174,7 +174,9 @@ var Carousel = function (_React$Component) {
 
       var closestIndex = (0, _utils.getClosestSlide)(this.state.allSlidesScroll, currentScroll);
 
-      closestIndex = (0, _utils.getNextFromTouchSpeed)(+new Date() - this.state.startTime, currentScroll, this.state.allSlidesScroll, this.state.currentSlide);
+      console.log("ges " + closestIndex);
+
+      closestIndex = (0, _utils.getNextFromTouchSpeed)(+new Date() - this.state.startTime, currentScroll, this.state.allSlidesScroll, this.state.currentSlide) || closestIndex;
 
       (0, _utils.scrollTo)(this.container, this.state.allSlidesScroll[closestIndex], 150);
 
