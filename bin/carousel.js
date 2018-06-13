@@ -4,6 +4,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = require("react");
@@ -37,21 +39,26 @@ var Carousel = function (_React$Component) {
     _this.state = {
       margin: props.margin || 5,
       leftSpace: props.leftSpace || 5,
+      limit: 50,
       currentSlide: 0,
+      containerLength: undefined,
       allSlidesScroll: [],
       startTime: 0,
+      startX: 0,
+      left: 0,
       isTouchActive: false,
       isPrevActive: false,
       isNextActive: false
     };
     _this.slides = [];
     _this.setup = _this.setup.bind(_this);
+    _this.updateScroll = _this.updateScroll.bind(_this);
     _this.onTouchEnd = _this.onTouchEnd.bind(_this);
+    _this.onTouchMove = _this.onTouchMove.bind(_this);
     _this.onTouchStart = _this.onTouchStart.bind(_this);
     _this.onTouchCancel = _this.onTouchCancel.bind(_this);
     _this.onNextClick = _this.onNextClick.bind(_this);
     _this.onPrevClick = _this.onPrevClick.bind(_this);
-    _this.onScroll = _this.onScroll.bind(_this);
     _this.calculateNextSlide = _this.calculateNextSlide.bind(_this);
     _this.updateCurrentSlide = _this.updateCurrentSlide.bind(_this);
     _this.checkActiveButtons = _this.checkActiveButtons.bind(_this);
@@ -72,35 +79,52 @@ var Carousel = function (_React$Component) {
       var containerLength = this.slides.length * (slideWidth + this.state.margin) - this.state.margin;
       var containerWidth = this.container.getBoundingClientRect().width;
 
-      this.container.style.overflowX = "hidden";
-
       var allSlidesScroll = this.slides.map(function (slide, index) {
         if (index === 0) return 0;
 
         var scrollValue = Math.min(slideWidth * index + _this2.state.margin * (index - 1) - _this2.state.leftSpace, containerLength - containerWidth);
 
-        return scrollValue;
+        return scrollValue * -1;
       });
 
       this.setState({
+        containerLength: containerLength,
         allSlidesScroll: allSlidesScroll
       }, function () {
         return _this2.updateCurrentSlide(0);
       });
     }
   }, {
+    key: "updateScroll",
+    value: function updateScroll(left) {
+      this.setState({
+        left: left
+      });
+    }
+  }, {
     key: "onTouchStart",
-    value: function onTouchStart() {
-      console.log("touch start");
+    value: function onTouchStart(e) {
       this.setState({
         startTime: +new Date(),
-        isTouchActive: true
+        isTouchActive: true,
+        startX: e.touches[0].clientX
+      });
+    }
+  }, {
+    key: "onTouchMove",
+    value: function onTouchMove(e) {
+      var left = this.state.left + e.touches[0].clientX - this.state.startX;
+      left = Math.min(left, this.state.limit);
+      left = Math.max(left, this.container.getBoundingClientRect().width - this.state.containerLength - this.state.limit);
+
+      this.setState({
+        left: left,
+        startX: e.touches[0].clientX
       });
     }
   }, {
     key: "onTouchEnd",
     value: function onTouchEnd() {
-      console.log("touch end");
       this.setState({
         isTouchActive: false
       });
@@ -109,18 +133,10 @@ var Carousel = function (_React$Component) {
   }, {
     key: "onTouchCancel",
     value: function onTouchCancel() {
-      console.log("touch cancel");
       this.setState({
         isTouchActive: false
       });
       this.calculateNextSlide();
-    }
-  }, {
-    key: "onScroll",
-    value: function onScroll(e) {
-      console.log("ss");
-      e.preventDefault();
-      this.container.style.overflowX = this.state.isTouchActive ? "scroll" : "hidden";
     }
   }, {
     key: "onPrevClick",
@@ -163,29 +179,23 @@ var Carousel = function (_React$Component) {
   }, {
     key: "calculateNextSlide",
     value: function calculateNextSlide() {
-      var _this3 = this;
+      var currentScroll = this.state.left;
 
-      this.container.style.overflowX = "hidden";
-      setTimeout(function () {
-        _this3.container.style.overflowX = "scroll";
-      }, 200);
+      var closestIndex = (0, _utils.getNextFromTouchSpeed)(+new Date() - this.state.startTime, currentScroll, this.state.allSlidesScroll, this.state.currentSlide);
 
-      var currentScroll = this.container.scrollLeft;
+      if (typeof closestIndex === "undefined") closestIndex = (0, _utils.getClosestSlide)(this.state.allSlidesScroll, currentScroll);
 
-      var closestIndex = (0, _utils.getClosestSlide)(this.state.allSlidesScroll, currentScroll);
-
-      console.log("ges " + closestIndex);
-
-      closestIndex = (0, _utils.getNextFromTouchSpeed)(+new Date() - this.state.startTime, currentScroll, this.state.allSlidesScroll, this.state.currentSlide) || closestIndex;
-
-      (0, _utils.scrollTo)(this.container, this.state.allSlidesScroll[closestIndex], 150);
+      (0, _utils.setTransition)(this.slider, 150);
+      this.setState({
+        left: this.state.allSlidesScroll[closestIndex]
+      });
 
       this.updateCurrentSlide(closestIndex);
     }
   }, {
     key: "render",
     value: function render() {
-      var _this4 = this;
+      var _this3 = this;
 
       var children = this.props.children;
 
@@ -194,16 +204,11 @@ var Carousel = function (_React$Component) {
           "div",
           {
             ref: function ref(div) {
-              return _this4.slides[index] = div;
+              return _this3.slides[index] = div;
             },
-            onTouchEnd: _this4.onTouchEnd,
-            onTouchStart: _this4.onTouchStart,
-            onTouchCancel: _this4.onTouchCancel,
             style: {
               display: "inline-block",
-              overflowX: "normal",
-              whiteSpace: "normal",
-              marginRight: index + 1 === children.length ? 0 : _this4.state.margin
+              marginRight: index + 1 === children.length ? 0 : _this3.state.margin
             }
           },
           _react2.default.cloneElement(child)
@@ -212,7 +217,13 @@ var Carousel = function (_React$Component) {
 
       return _react2.default.createElement(
         "div",
-        { className: "commerce-carousel", style: { position: "relative" } },
+        {
+          className: "commerce-carousel",
+          style: { position: "relative" },
+          ref: function ref(div) {
+            return _this3.container = div;
+          }
+        },
         _react2.default.createElement(_button.PrevButton, {
           onClick: this.onPrevClick,
           isActive: this.state.isPrevActive
@@ -220,16 +231,19 @@ var Carousel = function (_React$Component) {
         _react2.default.createElement(
           "div",
           {
-            ref: function ref(div) {
-              return _this4.container = div;
-            },
-            onScroll: this.onScroll,
             className: "carousel-wrapper",
-            style: {
+            style: _extends({
               position: "relative",
-              overflowX: "scroll",
-              whiteSpace: "nowrap"
-            }
+              overflowX: "hidden",
+              width: this.state.containerLength + "px"
+            }, (0, _utils.setTranslation)(this.state.left)),
+            ref: function ref(div) {
+              return _this3.slider = div;
+            },
+            onTouchEnd: this.onTouchEnd,
+            onTouchMove: this.onTouchMove,
+            onTouchStart: this.onTouchStart,
+            onTouchCancel: this.onTouchCancel
           },
           children
         ),

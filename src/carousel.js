@@ -2,7 +2,13 @@ import React from "react";
 
 import Slider from "./slider";
 import { PrevButton, NextButton } from "./button";
-import { scrollTo, getClosestSlide, getNextFromTouchSpeed } from "./utils";
+import {
+  scrollTo,
+  getClosestSlide,
+  getNextFromTouchSpeed,
+  setTranslation,
+  setTransition
+} from "./utils";
 
 class Carousel extends React.Component {
   constructor(props) {
@@ -10,21 +16,26 @@ class Carousel extends React.Component {
     this.state = {
       margin: props.margin || 5,
       leftSpace: props.leftSpace || 5,
+      limit: 50,
       currentSlide: 0,
+      containerLength: undefined,
       allSlidesScroll: [],
       startTime: 0,
+      startX: 0,
+      left: 0,
       isTouchActive: false,
       isPrevActive: false,
       isNextActive: false
     };
     this.slides = [];
     this.setup = this.setup.bind(this);
+    this.updateScroll = this.updateScroll.bind(this);
     this.onTouchEnd = this.onTouchEnd.bind(this);
+    this.onTouchMove = this.onTouchMove.bind(this);
     this.onTouchStart = this.onTouchStart.bind(this);
     this.onTouchCancel = this.onTouchCancel.bind(this);
     this.onNextClick = this.onNextClick.bind(this);
     this.onPrevClick = this.onPrevClick.bind(this);
-    this.onScroll = this.onScroll.bind(this);
     this.calculateNextSlide = this.calculateNextSlide.bind(this);
     this.updateCurrentSlide = this.updateCurrentSlide.bind(this);
     this.checkActiveButtons = this.checkActiveButtons.bind(this);
@@ -41,8 +52,6 @@ class Carousel extends React.Component {
       this.slides.length * (slideWidth + this.state.margin) - this.state.margin;
     const containerWidth = this.container.getBoundingClientRect().width;
 
-    this.container.style.overflowX = "hidden";
-
     const allSlidesScroll = this.slides.map((slide, index) => {
       if (index === 0) return 0;
 
@@ -53,27 +62,49 @@ class Carousel extends React.Component {
         containerLength - containerWidth
       );
 
-      return scrollValue;
+      return scrollValue * -1;
     });
 
     this.setState(
       {
+        containerLength,
         allSlidesScroll
       },
       () => this.updateCurrentSlide(0)
     );
   }
 
-  onTouchStart() {
-    console.log("touch start");
+  updateScroll(left) {
+    this.setState({
+      left
+    });
+  }
+
+  onTouchStart(e) {
     this.setState({
       startTime: +new Date(),
-      isTouchActive: true
+      isTouchActive: true,
+      startX: e.touches[0].clientX
+    });
+  }
+
+  onTouchMove(e) {
+    let left = this.state.left + e.touches[0].clientX - this.state.startX;
+    left = Math.min(left, this.state.limit);
+    left = Math.max(
+      left,
+      this.container.getBoundingClientRect().width -
+        this.state.containerLength -
+        this.state.limit
+    );
+
+    this.setState({
+      left,
+      startX: e.touches[0].clientX
     });
   }
 
   onTouchEnd() {
-    console.log("touch end");
     this.setState({
       isTouchActive: false
     });
@@ -81,19 +112,10 @@ class Carousel extends React.Component {
   }
 
   onTouchCancel() {
-    console.log("touch cancel");
     this.setState({
       isTouchActive: false
     });
     this.calculateNextSlide();
-  }
-
-  onScroll(e) {
-    console.log("ss");
-    e.preventDefault();
-    this.container.style.overflowX = this.state.isTouchActive
-      ? "scroll"
-      : "hidden";
   }
 
   onPrevClick() {
@@ -141,32 +163,24 @@ class Carousel extends React.Component {
   }
 
   calculateNextSlide() {
-    /* Setting overflow hidden to avoid continuous scrolling after tap out. Then enabling it after a few milliseconds. */
-    this.container.style.overflowX = "hidden";
-    setTimeout(() => {
-      this.container.style.overflowX = "scroll";
-    }, 200);
-
-    const currentScroll = this.container.scrollLeft;
-
-    /* Get the closest slide for current scroll value */
-    let closestIndex = getClosestSlide(
-      this.state.allSlidesScroll,
-      currentScroll
-    );
-
-    console.log("ges " + closestIndex);
+    const currentScroll = this.state.left;
 
     /* Get which slide to go to, based on the touch speed */
-    closestIndex =
-      getNextFromTouchSpeed(
-        +new Date() - this.state.startTime,
-        currentScroll,
-        this.state.allSlidesScroll,
-        this.state.currentSlide
-      ) || closestIndex;
+    let closestIndex = getNextFromTouchSpeed(
+      +new Date() - this.state.startTime,
+      currentScroll,
+      this.state.allSlidesScroll,
+      this.state.currentSlide
+    );
 
-    scrollTo(this.container, this.state.allSlidesScroll[closestIndex], 150);
+    /* Get the closest slide for current scroll value */
+    if (typeof closestIndex === "undefined")
+      closestIndex = getClosestSlide(this.state.allSlidesScroll, currentScroll);
+
+    setTransition(this.slider, 150);
+    this.setState({
+      left: this.state.allSlidesScroll[closestIndex]
+    });
 
     this.updateCurrentSlide(closestIndex);
   }
@@ -181,13 +195,8 @@ class Carousel extends React.Component {
     children = React.Children.map(children, (child, index) => (
       <div
         ref={div => (this.slides[index] = div)}
-        onTouchEnd={this.onTouchEnd}
-        onTouchStart={this.onTouchStart}
-        onTouchCancel={this.onTouchCancel}
         style={{
           display: "inline-block",
-          overflowX: "normal",
-          whiteSpace: "normal",
           marginRight: index + 1 === children.length ? 0 : this.state.margin
         }}
       >
@@ -196,20 +205,28 @@ class Carousel extends React.Component {
     ));
 
     return (
-      <div className="commerce-carousel" style={{ position: "relative" }}>
+      <div
+        className="commerce-carousel"
+        style={{ position: "relative" }}
+        ref={div => (this.container = div)}
+      >
         <PrevButton
           onClick={this.onPrevClick}
           isActive={this.state.isPrevActive}
         />
         <div
-          ref={div => (this.container = div)}
-          onScroll={this.onScroll}
           className="carousel-wrapper"
           style={{
             position: "relative",
-            overflowX: "scroll",
-            whiteSpace: "nowrap"
+            overflowX: "hidden",
+            width: `${this.state.containerLength}px`,
+            ...setTranslation(this.state.left)
           }}
+          ref={div => (this.slider = div)}
+          onTouchEnd={this.onTouchEnd}
+          onTouchMove={this.onTouchMove}
+          onTouchStart={this.onTouchStart}
+          onTouchCancel={this.onTouchCancel}
         >
           {children}
         </div>

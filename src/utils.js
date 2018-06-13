@@ -1,15 +1,13 @@
-const scrollTo = (element, to, duration) => {
-  var start = element.scrollLeft,
+const scrollTo = (element, to, duration, updateScroll) => {
+  var start = element.style.translateX,
     change = to - start,
     currentTime = 0,
     increment = 5;
 
   var animateScroll = function() {
-    console.log("animate");
-    element.style.overflowX = "scroll";
     currentTime += increment;
     var val = Math.easeInOutQuad(currentTime, start, change, duration);
-    element.scrollLeft = val;
+    updateScroll(val);
     if (currentTime < duration) {
       setTimeout(animateScroll, increment);
     }
@@ -29,16 +27,11 @@ Math.easeInOutQuad = function(t, b, c, d) {
 };
 
 const getClosestSlide = (allSlidesScroll, currentScroll) => {
-  console.log("here");
   let closestValue = allSlidesScroll.reduce((prev, curr) => {
     return Math.abs(curr - currentScroll) < Math.abs(prev - currentScroll)
       ? curr
       : prev;
-  }, -1000000);
-
-  console.log(allSlidesScroll);
-  console.log(currentScroll);
-  console.log(closestValue);
+  }, 1000000);
 
   return allSlidesScroll.indexOf(closestValue);
 };
@@ -49,11 +42,11 @@ const getNextFromTouchSpeed = (
   allSlidesScroll,
   currentSlide
 ) => {
-  let closestIndex = currentSlide;
+  let closestIndex;
 
   if (scrollTime < 400 && currentScroll !== allSlidesScroll[currentSlide]) {
     closestIndex =
-      currentScroll >= allSlidesScroll[currentSlide]
+      currentScroll < allSlidesScroll[currentSlide]
         ? Math.min(allSlidesScroll.length - 1, currentSlide + 1)
         : Math.max(0, currentSlide - 1);
   }
@@ -61,4 +54,25 @@ const getNextFromTouchSpeed = (
   return closestIndex;
 };
 
-export { scrollTo, getClosestSlide, getNextFromTouchSpeed };
+const setTranslation = left => {
+  const translate = `translateX(${left}px)`;
+
+  return {
+    transform: translate,
+    WebkitTransform: translate,
+    msTransform: translate
+  };
+};
+
+const setTransition = (element, time) => {
+  element.style.transition = `${time}ms ease-in-out`;
+  window.setTimeout(() => (element.style.transition = "unset"), time);
+};
+
+export {
+  scrollTo,
+  getClosestSlide,
+  getNextFromTouchSpeed,
+  setTranslation,
+  setTransition
+};
