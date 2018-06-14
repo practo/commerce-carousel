@@ -34,17 +34,13 @@ var NavigationButton = function (_React$PureComponent) {
   _createClass(NavigationButton, [{
     key: "render",
     value: function render() {
-      return _react2.default.createElement(
-        "button",
-        {
-          style: {
-            visibility: this.props.isActive ? "visible" : "hidden"
-          },
-          className: this.className,
-          onClick: this.props.onClick
+      return _react2.default.createElement("button", {
+        style: {
+          visibility: this.props.isActive ? "visible" : "hidden"
         },
-        "Button"
-      );
+        className: this.className,
+        onClick: this.props.onClick
+      });
     }
   }]);
 

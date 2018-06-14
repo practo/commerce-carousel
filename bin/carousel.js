@@ -37,8 +37,8 @@ var Carousel = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (Carousel.__proto__ || Object.getPrototypeOf(Carousel)).call(this, props));
 
     _this.state = {
-      margin: props.margin || 5,
-      leftSpace: props.leftSpace || 5,
+      margin: props.margin || 10,
+      leftSpace: props.leftSpace || 10,
       limit: 50,
       currentSlide: 0,
       containerLength: undefined,
@@ -142,14 +142,24 @@ var Carousel = function (_React$Component) {
     key: "onPrevClick",
     value: function onPrevClick() {
       var nextSlide = Math.max(0, this.state.currentSlide - 1);
-      (0, _utils.scrollTo)(this.container, this.state.allSlidesScroll[nextSlide], 150);
+
+      (0, _utils.setTransition)(this.slider, 150);
+      this.setState({
+        left: this.state.allSlidesScroll[nextSlide]
+      });
+
       this.updateCurrentSlide(nextSlide);
     }
   }, {
     key: "onNextClick",
     value: function onNextClick() {
       var nextSlide = Math.min(this.props.children.length - 1, this.state.currentSlide + 1);
-      (0, _utils.scrollTo)(this.container, this.state.allSlidesScroll[nextSlide], 150);
+
+      (0, _utils.setTransition)(this.slider, 150);
+      this.setState({
+        left: this.state.allSlidesScroll[nextSlide]
+      });
+
       this.updateCurrentSlide(nextSlide);
     }
   }, {
@@ -168,12 +178,10 @@ var Carousel = function (_React$Component) {
     key: "checkActiveButtons",
     value: function checkActiveButtons(currentSlide) {
       var containerWidth = this.container.getBoundingClientRect().width;
-      var slideWidth = this.slides[0].getBoundingClientRect().width;
-      var containerLength = this.slides.length * (slideWidth + this.state.margin) - this.state.margin;
 
       this.setState({
         isPrevActive: currentSlide !== 0,
-        isNextActive: this.state.allSlidesScroll[currentSlide] + containerWidth !== containerLength
+        isNextActive: this.state.allSlidesScroll[currentSlide] !== this.state.allSlidesScroll[this.state.allSlidesScroll.length - 1]
       });
     }
   }, {
