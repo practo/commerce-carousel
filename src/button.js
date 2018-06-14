@@ -14,9 +14,7 @@ class NavigationButton extends React.PureComponent {
         }}
         className={this.className}
         onClick={this.props.onClick}
-      >
-        Button
-      </button>
+      />
     );
   }
 }

@@ -14,8 +14,8 @@ class Carousel extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      margin: props.margin || 5,
-      leftSpace: props.leftSpace || 5,
+      margin: props.margin || 10,
+      leftSpace: props.leftSpace || 10,
       limit: 50,
       currentSlide: 0,
       containerLength: undefined,
@@ -120,7 +120,12 @@ class Carousel extends React.Component {
 
   onPrevClick() {
     const nextSlide = Math.max(0, this.state.currentSlide - 1);
-    scrollTo(this.container, this.state.allSlidesScroll[nextSlide], 150);
+
+    setTransition(this.slider, 150);
+    this.setState({
+      left: this.state.allSlidesScroll[nextSlide]
+    });
+
     this.updateCurrentSlide(nextSlide);
   }
 
@@ -129,7 +134,12 @@ class Carousel extends React.Component {
       this.props.children.length - 1,
       this.state.currentSlide + 1
     );
-    scrollTo(this.container, this.state.allSlidesScroll[nextSlide], 150);
+
+    setTransition(this.slider, 150);
+    this.setState({
+      left: this.state.allSlidesScroll[nextSlide]
+    });
+
     this.updateCurrentSlide(nextSlide);
   }
 
@@ -149,16 +159,12 @@ class Carousel extends React.Component {
 
   checkActiveButtons(currentSlide) {
     const containerWidth = this.container.getBoundingClientRect().width;
-    const slideWidth = this.slides[0].getBoundingClientRect().width;
-    const containerLength =
-      this.slides.length * (slideWidth + this.state.margin) - this.state.margin;
-
     /* Conditions for checking whether the buttons are active or not */
     this.setState({
       isPrevActive: currentSlide !== 0,
       isNextActive:
-        this.state.allSlidesScroll[currentSlide] + containerWidth !==
-        containerLength
+        this.state.allSlidesScroll[currentSlide] !==
+        this.state.allSlidesScroll[this.state.allSlidesScroll.length - 1]
     });
   }
 
