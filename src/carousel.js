@@ -219,6 +219,7 @@ class Carousel extends React.Component {
         <PrevButton
           onClick={this.onPrevClick}
           isActive={this.state.isPrevActive}
+          buttons={this.props.buttons}
         />
         <div
           className="carousel-wrapper"
@@ -240,6 +241,7 @@ class Carousel extends React.Component {
         <NextButton
           onClick={this.onNextClick}
           isActive={this.state.isNextActive}
+          buttons={this.props.buttons}
         />
       </div>
     );

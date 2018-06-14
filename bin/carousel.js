@@ -234,7 +234,8 @@ var Carousel = function (_React$Component) {
         },
         _react2.default.createElement(_button.PrevButton, {
           onClick: this.onPrevClick,
-          isActive: this.state.isPrevActive
+          isActive: this.state.isPrevActive,
+          buttons: this.props.buttons
         }),
         _react2.default.createElement(
           "div",
@@ -257,7 +258,8 @@ var Carousel = function (_React$Component) {
         ),
         _react2.default.createElement(_button.NextButton, {
           onClick: this.onNextClick,
-          isActive: this.state.isNextActive
+          isActive: this.state.isNextActive,
+          buttons: this.props.buttons
         })
       );
     }
