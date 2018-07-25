@@ -53,10 +53,15 @@ class Carousel extends React.Component {
 
   /* Re-setting all the calculations */
   setup() {
-    const slideWidth = this.slides[0].getBoundingClientRect().width;
-    const containerLength =
-      this.slides.length * (slideWidth + this.state.margin) - this.state.margin;
     const containerWidth = this.container.getBoundingClientRect().width;
+    let slideWidth = this.slides[0].getBoundingClientRect().width;
+
+    if (this.props["full-width"]) {
+      slideWidth = containerWidth;
+    }
+
+    let containerLength =
+      this.slides.length * (slideWidth + this.state.margin) - this.state.margin;
 
     const allSlidesScroll = this.slides.map((slide, index) => {
       if (index === 0) return 0;
