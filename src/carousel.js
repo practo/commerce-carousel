@@ -45,6 +45,12 @@ class Carousel extends React.Component {
     this.setup();
   }
 
+  componentDidUpdate(nextProps, nextState) {
+    if (nextState.currentSlide !== nextProps.activeSlide) {
+      this.updateCurrentSlide(nextProps.activeSlide);
+    }
+  }
+
   /* Re-setting all the calculations */
   setup() {
     const slideWidth = this.slides[0].getBoundingClientRect().width;
@@ -122,9 +128,6 @@ class Carousel extends React.Component {
     const nextSlide = Math.max(0, this.state.currentSlide - 1);
 
     setTransition(this.slider, 150);
-    this.setState({
-      left: this.state.allSlidesScroll[nextSlide]
-    });
 
     this.updateCurrentSlide(nextSlide);
   }
@@ -136,14 +139,16 @@ class Carousel extends React.Component {
     );
 
     setTransition(this.slider, 150);
-    this.setState({
-      left: this.state.allSlidesScroll[nextSlide]
-    });
 
     this.updateCurrentSlide(nextSlide);
   }
 
   updateCurrentSlide(currentSlide) {
+    this.setState({
+      currentSlide,
+      left: this.state.allSlidesScroll[currentSlide]
+    });
+
     if (
       currentSlide !== this.state.currentSlide &&
       typeof this.props.onSlideChange !== "undefined"
@@ -151,9 +156,6 @@ class Carousel extends React.Component {
       this.props.onSlideChange(currentSlide);
     }
 
-    this.setState({
-      currentSlide
-    });
     this.checkActiveButtons(currentSlide);
   }
 
@@ -184,9 +186,6 @@ class Carousel extends React.Component {
       closestIndex = getClosestSlide(this.state.allSlidesScroll, currentScroll);
 
     setTransition(this.slider, 150);
-    this.setState({
-      left: this.state.allSlidesScroll[closestIndex]
-    });
 
     this.updateCurrentSlide(closestIndex);
   }
