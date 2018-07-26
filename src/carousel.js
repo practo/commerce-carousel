@@ -14,8 +14,8 @@ class Carousel extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      margin: props.margin || 10,
-      leftSpace: props.leftSpace || 10,
+      margin: typeof props.margin !== "undefined" ? props.margin : 10,
+      leftSpace: typeof props.leftSpace !== "undefined" ? props.margin : 10,
       limit: 50,
       currentSlide: 0,
       containerLength: undefined,
@@ -39,16 +39,26 @@ class Carousel extends React.Component {
     this.calculateNextSlide = this.calculateNextSlide.bind(this);
     this.updateCurrentSlide = this.updateCurrentSlide.bind(this);
     this.checkActiveButtons = this.checkActiveButtons.bind(this);
+    this.onWindowResize = this.onWindowResize.bind(this);
   }
 
   componentDidMount() {
     this.setup();
+    window.addEventListener("resize", this.onWindowResize);
   }
 
-  componentDidUpdate(nextProps, nextState) {
-    if (nextState.currentSlide !== nextProps.activeSlide) {
-      this.updateCurrentSlide(nextProps.activeSlide);
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      typeof prevProps.activeSlide !== "undefined" &&
+      prevState.currentSlide !== prevProps.activeSlide &&
+      prevProps.activeSlide !== this.props.activeSlide
+    ) {
+      this.updateCurrentSlide(this.props.activeSlide, true);
     }
+  }
+
+  onWindowResize() {
+    this.setup();
   }
 
   /* Re-setting all the calculations */
@@ -79,9 +89,10 @@ class Carousel extends React.Component {
     this.setState(
       {
         containerLength,
+        slideWidth,
         allSlidesScroll
       },
-      () => this.updateCurrentSlide(0)
+      () => this.updateCurrentSlide(this.props.activeSlide || 0)
     );
   }
 
@@ -149,18 +160,16 @@ class Carousel extends React.Component {
   }
 
   updateCurrentSlide(currentSlide) {
-    this.setState({
-      currentSlide,
-      left: this.state.allSlidesScroll[currentSlide]
-    });
-
     if (
       currentSlide !== this.state.currentSlide &&
       typeof this.props.onSlideChange !== "undefined"
     ) {
       this.props.onSlideChange(currentSlide);
     }
-
+    this.setState({
+      currentSlide,
+      left: this.state.allSlidesScroll[currentSlide]
+    });
     this.checkActiveButtons(currentSlide);
   }
 
@@ -207,6 +216,7 @@ class Carousel extends React.Component {
         ref={div => (this.slides[index] = div)}
         style={{
           display: "inline-block",
+          width: this.state.slideWidth,
           marginRight: index + 1 === children.length ? 0 : this.state.margin
         }}
       >
@@ -217,7 +227,7 @@ class Carousel extends React.Component {
     return (
       <div
         className="commerce-carousel"
-        style={{ position: "relative" }}
+        style={{ position: "relative", overflow: this.props.overflow }}
         ref={div => (this.container = div)}
       >
         <PrevButton
