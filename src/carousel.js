@@ -19,6 +19,7 @@ class Carousel extends React.Component {
       limit: 50,
       currentSlide: 0,
       containerLength: undefined,
+      disableTouchScroll: { x: 0, y: 0 },
       allSlidesScroll: [],
       startTime: 0,
       startX: 0,
@@ -50,10 +51,19 @@ class Carousel extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (
       typeof prevProps.activeSlide !== "undefined" &&
-      prevState.currentSlide !== prevProps.activeSlide &&
+      prevState.currentSlide !== this.props.activeSlide &&
       prevProps.activeSlide !== this.props.activeSlide
     ) {
       this.updateCurrentSlide(this.props.activeSlide, true);
+    }
+
+    if (!prevProps.disableTouch && this.props.disableTouch) {
+      this.slides.forEach(slide =>
+        slide.scrollTo(
+          this.props.disableTouchPoint.x,
+          this.props.disableTouchPoint.y
+        )
+      );
     }
   }
 
@@ -103,6 +113,7 @@ class Carousel extends React.Component {
   }
 
   onTouchStart(e) {
+    if (this.props.disableTouch) return;
     this.setState({
       startTime: +new Date(),
       isTouchActive: true,
@@ -111,6 +122,7 @@ class Carousel extends React.Component {
   }
 
   onTouchMove(e) {
+    if (this.props.disableTouch) return;
     let left = this.state.left + e.touches[0].clientX - this.state.startX;
     left = Math.min(left, this.state.limit);
     left = Math.max(
@@ -127,6 +139,7 @@ class Carousel extends React.Component {
   }
 
   onTouchEnd() {
+    if (this.props.disableTouch) return;
     this.setState({
       isTouchActive: false
     });
@@ -217,7 +230,8 @@ class Carousel extends React.Component {
         style={{
           display: "inline-block",
           width: this.state.slideWidth,
-          marginRight: index + 1 === children.length ? 0 : this.state.margin
+          marginRight: index + 1 === children.length ? 0 : this.state.margin,
+          overflow: this.props.disableTouch ? "scroll" : "unset"
         }}
       >
         {React.cloneElement(child)}
@@ -230,11 +244,13 @@ class Carousel extends React.Component {
         style={{ position: "relative", overflow: this.props.overflow }}
         ref={div => (this.container = div)}
       >
-        <PrevButton
-          onClick={this.onPrevClick}
-          isActive={this.state.isPrevActive}
-          buttons={this.props.buttons}
-        />
+        {!this.props.disableButtons ? (
+          <PrevButton
+            onClick={this.onPrevClick}
+            isActive={this.state.isPrevActive}
+            buttons={this.props.buttons}
+          />
+        ) : null}
         <div
           className="carousel-wrapper"
           style={{
@@ -251,12 +267,13 @@ class Carousel extends React.Component {
         >
           {children}
         </div>
-
-        <NextButton
-          onClick={this.onNextClick}
-          isActive={this.state.isNextActive}
-          buttons={this.props.buttons}
-        />
+        {!this.props.disableButtons ? (
+          <NextButton
+            onClick={this.onNextClick}
+            isActive={this.state.isNextActive}
+            buttons={this.props.buttons}
+          />
+        ) : null}
       </div>
     );
   }
