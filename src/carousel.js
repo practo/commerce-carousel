@@ -113,7 +113,7 @@ class Carousel extends React.Component {
   }
 
   onTouchStart(e) {
-    if (this.props.disableTouch) return;
+    if (this.props.disableTouch || e.touches.length > 1) return;
     this.setState({
       startTime: +new Date(),
       isTouchActive: true,
@@ -122,7 +122,7 @@ class Carousel extends React.Component {
   }
 
   onTouchMove(e) {
-    if (this.props.disableTouch) return;
+    if (this.props.disableTouch || e.touches.length > 1) return;
     let left = this.state.left + e.touches[0].clientX - this.state.startX;
     left = Math.min(left, this.state.limit);
     left = Math.max(
@@ -138,8 +138,8 @@ class Carousel extends React.Component {
     });
   }
 
-  onTouchEnd() {
-    if (this.props.disableTouch) return;
+  onTouchEnd(e) {
+    if (this.props.disableTouch || e.touches.length > 1) return;
     this.setState({
       isTouchActive: false
     });
@@ -156,7 +156,7 @@ class Carousel extends React.Component {
   onPrevClick() {
     const nextSlide = Math.max(0, this.state.currentSlide - 1);
 
-    setTransition(this.slider, 150);
+    setTransition(this.slider, 300);
 
     this.updateCurrentSlide(nextSlide);
   }
@@ -167,7 +167,7 @@ class Carousel extends React.Component {
       this.state.currentSlide + 1
     );
 
-    setTransition(this.slider, 150);
+    setTransition(this.slider, 300);
 
     this.updateCurrentSlide(nextSlide);
   }
@@ -212,7 +212,7 @@ class Carousel extends React.Component {
     if (typeof closestIndex === "undefined")
       closestIndex = getClosestSlide(this.state.allSlidesScroll, currentScroll);
 
-    setTransition(this.slider, 150);
+    setTransition(this.slider, 300);
 
     this.updateCurrentSlide(closestIndex);
   }

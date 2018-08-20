@@ -133,7 +133,7 @@ var Carousel = function (_React$Component) {
   }, {
     key: "onTouchStart",
     value: function onTouchStart(e) {
-      if (this.props.disableTouch) return;
+      if (this.props.disableTouch || e.touches.length > 1) return;
       this.setState({
         startTime: +new Date(),
         isTouchActive: true,
@@ -143,7 +143,7 @@ var Carousel = function (_React$Component) {
   }, {
     key: "onTouchMove",
     value: function onTouchMove(e) {
-      if (this.props.disableTouch) return;
+      if (this.props.disableTouch || e.touches.length > 1) return;
       var left = this.state.left + e.touches[0].clientX - this.state.startX;
       left = Math.min(left, this.state.limit);
       left = Math.max(left, this.container.getBoundingClientRect().width - this.state.containerLength - this.state.limit);
@@ -155,8 +155,8 @@ var Carousel = function (_React$Component) {
     }
   }, {
     key: "onTouchEnd",
-    value: function onTouchEnd() {
-      if (this.props.disableTouch) return;
+    value: function onTouchEnd(e) {
+      if (this.props.disableTouch || e.touches.length > 1) return;
       this.setState({
         isTouchActive: false
       });
@@ -175,7 +175,7 @@ var Carousel = function (_React$Component) {
     value: function onPrevClick() {
       var nextSlide = Math.max(0, this.state.currentSlide - 1);
 
-      (0, _utils.setTransition)(this.slider, 150);
+      (0, _utils.setTransition)(this.slider, 300);
 
       this.updateCurrentSlide(nextSlide);
     }
@@ -184,7 +184,7 @@ var Carousel = function (_React$Component) {
     value: function onNextClick() {
       var nextSlide = Math.min(this.props.children.length - 1, this.state.currentSlide + 1);
 
-      (0, _utils.setTransition)(this.slider, 150);
+      (0, _utils.setTransition)(this.slider, 300);
 
       this.updateCurrentSlide(nextSlide);
     }
@@ -219,7 +219,7 @@ var Carousel = function (_React$Component) {
 
       if (typeof closestIndex === "undefined") closestIndex = (0, _utils.getClosestSlide)(this.state.allSlidesScroll, currentScroll);
 
-      (0, _utils.setTransition)(this.slider, 150);
+      (0, _utils.setTransition)(this.slider, 300);
 
       this.updateCurrentSlide(closestIndex);
     }
