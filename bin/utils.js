@@ -38,7 +38,7 @@ var getClosestSlide = function getClosestSlide(allSlidesScroll, currentScroll) {
 var getNextFromTouchSpeed = function getNextFromTouchSpeed(scrollTime, currentScroll, allSlidesScroll, currentSlide) {
   var closestIndex = void 0;
 
-  if (scrollTime < 400 && currentScroll !== allSlidesScroll[currentSlide]) {
+  if (scrollTime < 400 && Math.abs(currentScroll - allSlidesScroll[currentSlide]) > 20) {
     closestIndex = currentScroll < allSlidesScroll[currentSlide] ? Math.min(allSlidesScroll.length - 1, currentSlide + 1) : Math.max(0, currentSlide - 1);
   }
 

@@ -44,7 +44,10 @@ const getNextFromTouchSpeed = (
 ) => {
   let closestIndex;
 
-  if (scrollTime < 400 && currentScroll !== allSlidesScroll[currentSlide]) {
+  if (
+    scrollTime < 400 &&
+    Math.abs(currentScroll - allSlidesScroll[currentSlide]) > 20
+  ) {
     closestIndex =
       currentScroll < allSlidesScroll[currentSlide]
         ? Math.min(allSlidesScroll.length - 1, currentSlide + 1)

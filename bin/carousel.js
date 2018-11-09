@@ -37,11 +37,12 @@ var Carousel = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (Carousel.__proto__ || Object.getPrototypeOf(Carousel)).call(this, props));
 
     _this.state = {
-      margin: props.margin || 10,
-      leftSpace: props.leftSpace || 10,
+      margin: typeof props.margin !== "undefined" ? props.margin : 10,
+      leftSpace: typeof props.leftSpace !== "undefined" ? props.margin : 10,
       limit: 50,
       currentSlide: 0,
       containerLength: undefined,
+      disableTouchScroll: { x: 0, y: 0 },
       allSlidesScroll: [],
       startTime: 0,
       startX: 0,
@@ -62,6 +63,7 @@ var Carousel = function (_React$Component) {
     _this.calculateNextSlide = _this.calculateNextSlide.bind(_this);
     _this.updateCurrentSlide = _this.updateCurrentSlide.bind(_this);
     _this.checkActiveButtons = _this.checkActiveButtons.bind(_this);
+    _this.onWindowResize = _this.onWindowResize.bind(_this);
     return _this;
   }
 
@@ -69,29 +71,56 @@ var Carousel = function (_React$Component) {
     key: "componentDidMount",
     value: function componentDidMount() {
       this.setup();
+      window.addEventListener("resize", this.onWindowResize);
+    }
+  }, {
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(prevProps, prevState) {
+      var _this2 = this;
+
+      if (typeof prevProps.activeSlide !== "undefined" && prevState.currentSlide !== this.props.activeSlide && prevProps.activeSlide !== this.props.activeSlide) {
+        this.updateCurrentSlide(this.props.activeSlide, true);
+      }
+
+      if (!prevProps.disableTouch && this.props.disableTouch) {
+        this.slides.forEach(function (slide) {
+          return slide.scrollTo(_this2.props.disableTouchPoint.x, _this2.props.disableTouchPoint.y);
+        });
+      }
+    }
+  }, {
+    key: "onWindowResize",
+    value: function onWindowResize() {
+      this.setup();
     }
   }, {
     key: "setup",
     value: function setup() {
-      var _this2 = this;
+      var _this3 = this;
 
-      var slideWidth = this.slides[0].getBoundingClientRect().width;
-      var containerLength = this.slides.length * (slideWidth + this.state.margin) - this.state.margin;
       var containerWidth = this.container.getBoundingClientRect().width;
+      var slideWidth = this.slides[0].getBoundingClientRect().width;
+
+      if (this.props["full-width"]) {
+        slideWidth = containerWidth;
+      }
+
+      var containerLength = this.slides.length * (slideWidth + this.state.margin) - this.state.margin;
 
       var allSlidesScroll = this.slides.map(function (slide, index) {
         if (index === 0) return 0;
 
-        var scrollValue = Math.min(slideWidth * index + _this2.state.margin * (index - 1) - _this2.state.leftSpace, containerLength - containerWidth);
+        var scrollValue = Math.min(slideWidth * index + _this3.state.margin * (index - 1) - _this3.state.leftSpace, containerLength - containerWidth);
 
         return scrollValue * -1;
       });
 
       this.setState({
         containerLength: containerLength,
+        slideWidth: slideWidth,
         allSlidesScroll: allSlidesScroll
       }, function () {
-        return _this2.updateCurrentSlide(0);
+        return _this3.updateCurrentSlide(_this3.props.activeSlide || 0);
       });
     }
   }, {
@@ -104,6 +133,7 @@ var Carousel = function (_React$Component) {
   }, {
     key: "onTouchStart",
     value: function onTouchStart(e) {
+      if (this.props.disableTouch || e.touches.length > 1) return;
       this.setState({
         startTime: +new Date(),
         isTouchActive: true,
@@ -113,6 +143,7 @@ var Carousel = function (_React$Component) {
   }, {
     key: "onTouchMove",
     value: function onTouchMove(e) {
+      if (this.props.disableTouch || e.touches.length > 1) return;
       var left = this.state.left + e.touches[0].clientX - this.state.startX;
       left = Math.min(left, this.state.limit);
       left = Math.max(left, this.container.getBoundingClientRect().width - this.state.containerLength - this.state.limit);
@@ -124,7 +155,8 @@ var Carousel = function (_React$Component) {
     }
   }, {
     key: "onTouchEnd",
-    value: function onTouchEnd() {
+    value: function onTouchEnd(e) {
+      if (this.props.disableTouch || e.touches.length > 1) return;
       this.setState({
         isTouchActive: false
       });
@@ -143,10 +175,7 @@ var Carousel = function (_React$Component) {
     value: function onPrevClick() {
       var nextSlide = Math.max(0, this.state.currentSlide - 1);
 
-      (0, _utils.setTransition)(this.slider, 150);
-      this.setState({
-        left: this.state.allSlidesScroll[nextSlide]
-      });
+      (0, _utils.setTransition)(this.slider, 300);
 
       this.updateCurrentSlide(nextSlide);
     }
@@ -155,10 +184,7 @@ var Carousel = function (_React$Component) {
     value: function onNextClick() {
       var nextSlide = Math.min(this.props.children.length - 1, this.state.currentSlide + 1);
 
-      (0, _utils.setTransition)(this.slider, 150);
-      this.setState({
-        left: this.state.allSlidesScroll[nextSlide]
-      });
+      (0, _utils.setTransition)(this.slider, 300);
 
       this.updateCurrentSlide(nextSlide);
     }
@@ -168,9 +194,9 @@ var Carousel = function (_React$Component) {
       if (currentSlide !== this.state.currentSlide && typeof this.props.onSlideChange !== "undefined") {
         this.props.onSlideChange(currentSlide);
       }
-
       this.setState({
-        currentSlide: currentSlide
+        currentSlide: currentSlide,
+        left: this.state.allSlidesScroll[currentSlide]
       });
       this.checkActiveButtons(currentSlide);
     }
@@ -193,17 +219,14 @@ var Carousel = function (_React$Component) {
 
       if (typeof closestIndex === "undefined") closestIndex = (0, _utils.getClosestSlide)(this.state.allSlidesScroll, currentScroll);
 
-      (0, _utils.setTransition)(this.slider, 150);
-      this.setState({
-        left: this.state.allSlidesScroll[closestIndex]
-      });
+      (0, _utils.setTransition)(this.slider, 300);
 
       this.updateCurrentSlide(closestIndex);
     }
   }, {
     key: "render",
     value: function render() {
-      var _this3 = this;
+      var _this4 = this;
 
       var children = this.props.children;
 
@@ -212,11 +235,13 @@ var Carousel = function (_React$Component) {
           "div",
           {
             ref: function ref(div) {
-              return _this3.slides[index] = div;
+              return _this4.slides[index] = div;
             },
             style: {
               display: "inline-block",
-              marginRight: index + 1 === children.length ? 0 : _this3.state.margin
+              width: _this4.state.slideWidth,
+              marginRight: index + 1 === children.length ? 0 : _this4.state.margin,
+              overflow: _this4.props.disableTouch ? "scroll" : "unset"
             }
           },
           _react2.default.cloneElement(child)
@@ -227,16 +252,16 @@ var Carousel = function (_React$Component) {
         "div",
         {
           className: "commerce-carousel",
-          style: { position: "relative" },
+          style: { position: "relative", overflow: this.props.overflow },
           ref: function ref(div) {
-            return _this3.container = div;
+            return _this4.container = div;
           }
         },
-        _react2.default.createElement(_button.PrevButton, {
+        !this.props.disableButtons ? _react2.default.createElement(_button.PrevButton, {
           onClick: this.onPrevClick,
           isActive: this.state.isPrevActive,
           buttons: this.props.buttons
-        }),
+        }) : null,
         _react2.default.createElement(
           "div",
           {
@@ -247,7 +272,7 @@ var Carousel = function (_React$Component) {
               width: this.state.containerLength + "px"
             }, (0, _utils.setTranslation)(this.state.left)),
             ref: function ref(div) {
-              return _this3.slider = div;
+              return _this4.slider = div;
             },
             onTouchEnd: this.onTouchEnd,
             onTouchMove: this.onTouchMove,
@@ -256,11 +281,11 @@ var Carousel = function (_React$Component) {
           },
           children
         ),
-        _react2.default.createElement(_button.NextButton, {
+        !this.props.disableButtons ? _react2.default.createElement(_button.NextButton, {
           onClick: this.onNextClick,
           isActive: this.state.isNextActive,
           buttons: this.props.buttons
-        })
+        }) : null
       );
     }
   }]);

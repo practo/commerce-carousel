@@ -14,11 +14,12 @@ class Carousel extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      margin: props.margin || 10,
-      leftSpace: props.leftSpace || 10,
+      margin: typeof props.margin !== "undefined" ? props.margin : 10,
+      leftSpace: typeof props.leftSpace !== "undefined" ? props.margin : 10,
       limit: 50,
       currentSlide: 0,
       containerLength: undefined,
+      disableTouchScroll: { x: 0, y: 0 },
       allSlidesScroll: [],
       startTime: 0,
       startX: 0,
@@ -39,18 +40,48 @@ class Carousel extends React.Component {
     this.calculateNextSlide = this.calculateNextSlide.bind(this);
     this.updateCurrentSlide = this.updateCurrentSlide.bind(this);
     this.checkActiveButtons = this.checkActiveButtons.bind(this);
+    this.onWindowResize = this.onWindowResize.bind(this);
   }
 
   componentDidMount() {
+    this.setup();
+    window.addEventListener("resize", this.onWindowResize);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      typeof prevProps.activeSlide !== "undefined" &&
+      prevState.currentSlide !== this.props.activeSlide &&
+      prevProps.activeSlide !== this.props.activeSlide
+    ) {
+      this.updateCurrentSlide(this.props.activeSlide, true);
+    }
+
+    if (!prevProps.disableTouch && this.props.disableTouch) {
+      this.slides.forEach(slide =>
+        slide.scrollTo(
+          this.props.disableTouchPoint.x,
+          this.props.disableTouchPoint.y
+        )
+      );
+    }
+  }
+
+  onWindowResize() {
     this.setup();
   }
 
   /* Re-setting all the calculations */
   setup() {
-    const slideWidth = this.slides[0].getBoundingClientRect().width;
-    const containerLength =
-      this.slides.length * (slideWidth + this.state.margin) - this.state.margin;
     const containerWidth = this.container.getBoundingClientRect().width;
+    let slideWidth = this.slides[0].getBoundingClientRect().width;
+
+    if (this.props["full-width"]) {
+      slideWidth = containerWidth;
+    }
+
+    let containerLength =
+      this.slides.length * (slideWidth + this.state.margin) - this.state.margin;
 
     const allSlidesScroll = this.slides.map((slide, index) => {
       if (index === 0) return 0;
@@ -68,9 +99,10 @@ class Carousel extends React.Component {
     this.setState(
       {
         containerLength,
+        slideWidth,
         allSlidesScroll
       },
-      () => this.updateCurrentSlide(0)
+      () => this.updateCurrentSlide(this.props.activeSlide || 0)
     );
   }
 
@@ -81,6 +113,7 @@ class Carousel extends React.Component {
   }
 
   onTouchStart(e) {
+    if (this.props.disableTouch || e.touches.length > 1) return;
     this.setState({
       startTime: +new Date(),
       isTouchActive: true,
@@ -89,6 +122,7 @@ class Carousel extends React.Component {
   }
 
   onTouchMove(e) {
+    if (this.props.disableTouch || e.touches.length > 1) return;
     let left = this.state.left + e.touches[0].clientX - this.state.startX;
     left = Math.min(left, this.state.limit);
     left = Math.max(
@@ -104,7 +138,8 @@ class Carousel extends React.Component {
     });
   }
 
-  onTouchEnd() {
+  onTouchEnd(e) {
+    if (this.props.disableTouch || e.touches.length > 1) return;
     this.setState({
       isTouchActive: false
     });
@@ -121,10 +156,7 @@ class Carousel extends React.Component {
   onPrevClick() {
     const nextSlide = Math.max(0, this.state.currentSlide - 1);
 
-    setTransition(this.slider, 150);
-    this.setState({
-      left: this.state.allSlidesScroll[nextSlide]
-    });
+    setTransition(this.slider, 300);
 
     this.updateCurrentSlide(nextSlide);
   }
@@ -135,10 +167,7 @@ class Carousel extends React.Component {
       this.state.currentSlide + 1
     );
 
-    setTransition(this.slider, 150);
-    this.setState({
-      left: this.state.allSlidesScroll[nextSlide]
-    });
+    setTransition(this.slider, 300);
 
     this.updateCurrentSlide(nextSlide);
   }
@@ -150,9 +179,9 @@ class Carousel extends React.Component {
     ) {
       this.props.onSlideChange(currentSlide);
     }
-
     this.setState({
-      currentSlide
+      currentSlide,
+      left: this.state.allSlidesScroll[currentSlide]
     });
     this.checkActiveButtons(currentSlide);
   }
@@ -183,10 +212,7 @@ class Carousel extends React.Component {
     if (typeof closestIndex === "undefined")
       closestIndex = getClosestSlide(this.state.allSlidesScroll, currentScroll);
 
-    setTransition(this.slider, 150);
-    this.setState({
-      left: this.state.allSlidesScroll[closestIndex]
-    });
+    setTransition(this.slider, 300);
 
     this.updateCurrentSlide(closestIndex);
   }
@@ -203,7 +229,9 @@ class Carousel extends React.Component {
         ref={div => (this.slides[index] = div)}
         style={{
           display: "inline-block",
-          marginRight: index + 1 === children.length ? 0 : this.state.margin
+          width: this.state.slideWidth,
+          marginRight: index + 1 === children.length ? 0 : this.state.margin,
+          overflow: this.props.disableTouch ? "scroll" : "unset"
         }}
       >
         {React.cloneElement(child)}
@@ -213,14 +241,16 @@ class Carousel extends React.Component {
     return (
       <div
         className="commerce-carousel"
-        style={{ position: "relative" }}
+        style={{ position: "relative", overflow: this.props.overflow }}
         ref={div => (this.container = div)}
       >
-        <PrevButton
-          onClick={this.onPrevClick}
-          isActive={this.state.isPrevActive}
-          buttons={this.props.buttons}
-        />
+        {!this.props.disableButtons ? (
+          <PrevButton
+            onClick={this.onPrevClick}
+            isActive={this.state.isPrevActive}
+            buttons={this.props.buttons}
+          />
+        ) : null}
         <div
           className="carousel-wrapper"
           style={{
@@ -237,12 +267,13 @@ class Carousel extends React.Component {
         >
           {children}
         </div>
-
-        <NextButton
-          onClick={this.onNextClick}
-          isActive={this.state.isNextActive}
-          buttons={this.props.buttons}
-        />
+        {!this.props.disableButtons ? (
+          <NextButton
+            onClick={this.onNextClick}
+            isActive={this.state.isNextActive}
+            buttons={this.props.buttons}
+          />
+        ) : null}
       </div>
     );
   }
